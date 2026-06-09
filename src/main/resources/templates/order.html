@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>销售订单管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            border-left: 4px solid #2563eb;
+            padding-left: 12px;
+            color: #222;
+        }
+        .tool-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-add { background: #2563eb; }
+        .btn-edit { background: #f59e0b; padding: 4px 10px;font-size:12px; }
+        .btn-del { background: #ef4444; padding: 4px 10px;font-size:12px; }
+        .btn-view { background: #10b981; padding: 4px 10px;font-size:12px; }
+        table { width:100%; border-collapse: collapse; }
+        th { background:#f9fafb; padding:12px; text-align:left; }
+        td { padding:12px; border-top:1px solid #eee; }
+        tr:hover { background:#f3f4f6; }
+        .pagination { margin-top:20px; display:flex; gap:10px; align-items: center; }
+        .page-btn { padding:6px 12px; border:1px solid #ddd; border-radius:4px; cursor:pointer; }
+        .page-btn.active { background:#2563eb; color:#fff; }
+
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            display: none;
+        }
+        .dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            width: 700px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .form-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .form-item label {
+            width: 140px;
+            text-align: right;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .form-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .form-btns {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel { background:#9ca3af; }
+
+        #orderForm, #editForm {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 22px;
+        }
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        .dealer-select-panel {
+            position: absolute;
+            left: 150px;
+            top: 42px;
+            width: calc(100% - 160px);
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .dealer-item {
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+        .dealer-item:hover {
+            background: #eff6ff;
+        }
+
+        /* ========== 统一导航栏样式 ========== */
+        .navbar {
+            background: #fff;
+            height: 70px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-right: 50px;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #444;
+        }
+        .nav-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">业务管理系统</div>
+    <div class="nav-tabs">
+        <div class="nav-item" data-page="index">首页</div>
+        <div class="nav-item active" data-page="dealer">经销商配置管理</div>
+        <div class="nav-item" data-page="order">销售订单管理</div>
+        <div class="nav-item" data-page="activityConfig">活动配置管理</div>
+    </div>
+</div>
+<div class="container">
+    <h2 class="title">销售订单管理</h2>
+    <div class="tool-bar">
+        <button class="btn btn-add" id="openAddOrder">+ 新增订单</button>
+        <div>
+            每页显示：
+            <select id="pageSizeSelect" class="page-size">
+                <option value="10">10</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select> 条
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>订单日期</th>
+            <th>经销商</th>
+            <th>产品名称</th>
+            <th>数量</th>
+            <th>随赠品数量</th>
+            <th>单价(元)</th>
+            <th>订单总金额（元）</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="orderTable"></tbody>
+    </table>
+
+    <div class="pagination">
+        <span>总条数：<span id="total">0</span></span>
+        <button class="page-btn" id="first">首页</button>
+        <button class="page-btn" id="prev">上一页</button>
+        <span id="pageInfo">第 1 页</span>
+        <button class="page-btn" id="next">下一页</button>
+        <button class="page-btn" id="last">尾页</button>
+    </div>
+</div>
+
+<!-- 新增弹窗 -->
+<div class="mask" id="addModal">
+    <div class="dialog">
+        <h3>新增销售订单</h3>
+        <form id="orderForm">
+            <div class="form-item form-full">
+                <label>所属经销商</label>
+                <input type="text" id="dealerSearch" placeholder="搜索经销商名称">
+                <div class="dealer-select-panel" id="dealerPanel"></div>
+                <input type="hidden" name="dealerId" id="dealerId">
+            </div>
+
+            <div class="form-item">
+                <label>订单日期</label>
+                <input type="date" name="orderDate" required>
+            </div>
+
+            <div class="form-item">
+                <label>产品名称</label>
+                <input type="text" name="productName" required>
+            </div>
+
+            <div class="form-item">
+                <label>数量</label>
+                <input type="number" id="quantity" name="quantity" required>
+            </div>
+
+            <div class="form-item">
+                <label>随赠品数量</label>
+                <input type="number" name="giftQuantity" value="0" min="0">
+            </div>
+
+            <div class="form-item">
+                <label>单价（元）</label>
+                <input step="0.01" type="number" id="price" name="price" required>
+            </div>
+
+            <div class="form-item">
+                <label>订单总金额（元）</label>
+                <input readonly step="0.01" id="totalAmount" name="totalAmount">
+            </div>
+
+            <div class="form-item">
+                <label>预计投入比例(%)</label>
+                <input step="0.01" id="expectRate" name="expectRate">
+            </div>
+
+            <div class="form-item">
+                <label>计提市场费用（元）</label>
+                <input readonly step="0.01" id="marketFee" name="marketFee" required>
+            </div>
+
+            <div class="form-item">
+                <label>实际投入比例(%)</label>
+                <input step="0.01" id="realRate" name="realRate">
+            </div>
+
+            <div class="form-item">
+                <label>市场费用结余</label>
+                <input readonly step="0.01" id="balanceFee" name="balanceFee">
+            </div>
+
+            <div class="form-btns">
+                <button type="button" class="btn btn-cancel">取消</button>
+                <button type="submit" class="btn btn-add">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="mask" id="editModal">
+    <div class="dialog">
+        <h3>编辑销售订单</h3>
+        <form id="editForm">
+            <input type="hidden" name="id" id="edit_id">
+            <input type="hidden" name="dealerId" id="edit_dealerId">
+
+            <div class="form-item form-full">
+                <label>所属经销商</label>
+                <input type="text" id="edit_dealerName" readonly>
+            </div>
+
+            <div class="form-item">
+                <label>订单日期</label>
+                <input type="date" name="orderDate" id="edit_orderDate" required>
+            </div>
+
+            <div class="form-item">
+                <label>产品名称</label>
+                <input type="text" name="productName" id="edit_productName" required>
+            </div>
+
+            <div class="form-item">
+                <label>数量</label>
+                <input type="number" name="quantity" id="edit_quantity" required>
+            </div>
+
+            <div class="form-item">
+                <label>随赠品数量</label>
+                <input type="number" name="giftQuantity" id="edit_giftQuantity" min="0">
+            </div>
+
+            <div class="form-item">
+                <label>单价（元）</label>
+                <input step="0.01" type="number" name="price" id="edit_price" required>
+            </div>
+
+            <div class="form-item">
+                <label>订单总金额（元）</label>
+                <input readonly step="0.01" id="edit_totalAmount">
+            </div>
+
+            <div class="form-item">
+                <label>预计投入比例(%)</label>
+                <input step="0.01" name="expectRate" id="edit_expectRate">
+            </div>
+
+            <div class="form-item">
+                <label>计提市场费用（元）</label>
+                <input readonly step="0.01" name="marketFee" id="edit_marketFee" required>
+            </div>
+
+            <div class="form-item">
+                <label>实际投入比例(%)</label>
+                <input step="0.01" name="realRate" id="edit_realRate">
+            </div>
+
+            <div class="form-item">
+                <label>市场费用结余</label>
+                <input readonly step="0.01" id="edit_balanceFee">
+            </div>
+
+            <div class="form-btns">
+                <button type="button" class="btn btn-cancel">取消</button>
+                <button type="submit" class="btn btn-add">保存修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="mask" id="detailModal">
+    <div class="dialog">
+        <h3>订单详情</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 22px;">
+            <div class="form-item form-full">
+                <label>所属经销商</label>
+                <input readonly id="detailDealerName">
+            </div>
+            <div class="form-item">
+                <label>订单日期</label>
+                <input readonly id="detailOrderDate">
+            </div>
+            <div class="form-item">
+                <label>产品名称</label>
+                <input readonly id="detailProductName">
+            </div>
+            <div class="form-item">
+                <label>数量</label>
+                <input readonly id="detailQuantity">
+            </div>
+            <div class="form-item">
+                <label>随赠品数量</label>
+                <input readonly id="detailGiftQuantity">
+            </div>
+            <div class="form-item">
+                <label>单价（元）</label>
+                <input readonly id="detailPrice">
+            </div>
+            <div class="form-item">
+                <label>订单总金额（元）</label>
+                <input readonly id="detailTotalAmount">
+            </div>
+            <div class="form-item">
+                <label>计提市场费用（元）</label>
+                <input readonly id="detailMarketFee">
+            </div>
+            <div class="form-item">
+                <label>预计投入比例(%)</label>
+                <input readonly id="detailExpectRate">
+            </div>
+            <div class="form-item">
+                <label>实际投入比例(%)</label>
+                <input readonly id="detailRealRate">
+            </div>
+            <div class="form-item">
+                <label>市场费用结余</label>
+                <input readonly id="detailBalanceFee">
+            </div>
+            <div class="form-btns">
+                <button class="btn btn-cancel">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="/js/order.js"></script>
+<script src="/js/nav.js"></script>
+</body>
+</html>

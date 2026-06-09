@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dealer.dao.OrderDao">
+
+    <select id="selectPage" parameterType="com.dealer.common.Page"
+            resultType="com.dealer.entity.Order">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+    (select dealerName from dealer where id = dealerId) as dealerName,
+    productName as productName,
+    orderDate as orderDate,
+    quantity as quantity,
+    price as price,
+    totalAmount as totalAmount,
+    marketFee as marketFee,
+    giftQuantity as giftQuantity,
+    expectRate as expectRate,
+    realRate as realRate,
+    balanceFee as balanceFee
+        FROM sale_order
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*) FROM sale_order
+    </select>
+
+    <select id="getOrderInfo" parameterType="com.dealer.entity.Order"
+            resultType="com.dealer.entity.Order">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+    (select dealerName from dealer where id = dealerId) as dealerName,
+    productName as productName,
+    orderDate as orderDate,
+    quantity as quantity,
+    price as price,
+    totalAmount as totalAmount,
+    marketFee as marketFee,
+    giftQuantity as giftQuantity,
+    expectRate as expectRate,
+    realRate as realRate,
+    balanceFee as balanceFee
+        FROM sale_order
+        <where>
+            1=1
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <!-- 经销商ID -->
+            <if test="dealerId != null and dealerId != ''">
+                AND dealerId = #{dealerId}
+            </if>
+
+            <!-- 产品名称 模糊查询 -->
+            <if test="productName != null and productName != ''">
+                AND productName LIKE CONCAT('%', #{productName}, '%')
+            </if>
+
+            <!-- 数量 -->
+            <if test="quantity != null">
+                AND quantity = #{quantity}
+            </if>
+
+            <!-- 其他字段都这么写 -->
+            <if test="giftQuantity != null">
+                AND giftQuantity = #{giftQuantity}
+            </if>
+
+        </where>
+        ORDER BY id DESC
+    </select>
+
+
+
+
+    <insert id="insert">
+    INSERT INTO sale_order
+    (dealerId,
+    productName,
+    orderDate,
+    quantity,
+    price,
+    totalAmount,
+    marketFee,
+    giftQuantity,
+    expectRate,
+    realRate,
+    balanceFee
+    )
+    VALUES(
+    #{dealerId},
+    #{productName},
+    #{orderDate},
+    #{quantity},
+    #{price},
+    #{totalAmount},
+    #{marketFee},
+    #{giftQuantity},
+    #{expectRate},
+    #{realRate},
+    #{balanceFee}
+    )
+</insert>
+    <update id="update">
+      UPDATE sale_order
+      SET dealerId=#{dealerId},
+      productName=#{productName},
+      orderDate=#{orderDate},
+      quantity=#{quantity},
+      price=#{price},
+      totalAmount=#{totalAmount},
+      marketFee=#{marketFee},
+      giftQuantity=#{giftQuantity},
+      expectRate=#{expectRate},
+      realRate=#{realRate},
+      balanceFee=#{balanceFee}
+    WHERE id=#{id}
+  </update>
+
+    <delete id="delete">
+    DELETE FROM sale_order WHERE id=#{id}
+</delete>
+
+</mapper>

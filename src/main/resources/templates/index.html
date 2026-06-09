@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>业务管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf5 100%);
+            min-height: 100vh;
+        }
+
+        /* 顶部导航条 */
+        .navbar {
+            background: #fff;
+            height: 70px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-right: 50px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #444;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+
+        /* 主内容区 */
+        .container {
+            max-width: 1200px;
+            margin: 120px auto 40px;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeIn 1s ease;
+        }
+
+        .welcome h1 {
+            font-size: 36px;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .welcome p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* 快捷卡片 */
+        .card-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 32px rgba(37,99,235,0.15);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin: 16px 0 8px;
+            color: #222;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #2563eb;
+            font-size: 24px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<!-- 顶部导航 -->
+<div class="navbar">
+    <div class="logo">业务管理系统</div>
+    <div class="nav-tabs">
+        <div class="nav-item active" data-page="index">首页</div>
+        <div class="nav-item" data-page="dealer">经销商配置管理</div>
+        <div class="nav-item" data-page="order">销售订单管理</div>
+        <div class="nav-item" data-page="activityConfig">活动配置管理</div>
+    </div>
+</div>
+
+<!-- 主内容 -->
+<div class="container">
+    <div class="welcome">
+        <h1>欢迎使用业务管理系统</h1>
+        <p>请选择需要操作的功能模块</p>
+    </div>
+
+    <div class="card-box">
+        <div class="card" data-page="dealer">
+            <div class="icon">📋</div>
+            <h3>经销商管理</h3>
+            <p>经销商信息录入</p>
+        </div>
+        <div class="card" data-page="order">
+            <div class="icon">📋</div>
+            <h3>销售订单管理</h3>
+            <p>管理订单、经销商、金额、费用计算</p>
+        </div>
+
+        <div class="card" data-page="activityConfig">
+            <div class="icon">🎯</div>
+            <h3>活动配置管理</h3>
+            <p>配置经销商活动、类型、备注</p>
+        </div>
+    </div>
+</div>
+
+<!-- 引入外部JS -->
+<script src="/js/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>经销商管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+
+        /* ========== 统一导航栏样式 ========== */
+        .navbar {
+            background: #fff;
+            height: 70px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-right: 50px;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #444;
+        }
+        .nav-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+
+        body {
+            background: #f5f7fa;
+            padding: 40px;
+            margin-top: 70px; /* 避免被导航遮挡 */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            border-left: 4px solid #2563eb;
+            padding-left: 12px;
+            color: #222;
+        }
+        .tool-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-add { background: #2563eb; }
+        .btn-edit { background: #f59e0b; padding: 4px 10px;font-size:12px; }
+        .btn-del { background: #ef4444; padding: 4px 10px;font-size:12px; }
+        table { width:100%; border-collapse: collapse; }
+        th { background:#f9fafb; padding:12px; text-align:left; }
+        td { padding:12px; border-top:1px solid #eee; }
+        tr:hover { background:#f3f4f6; }
+        .pagination { margin-top:20px; display:flex; gap:10px; align-items: center; }
+        .page-btn { padding:6px 12px; border:1px solid #ddd; border-radius:4px; cursor:pointer; }
+        .page-btn.active { background:#2563eb; color:#fff; }
+
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            display: none;
+        }
+        .dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            width: 460px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .form-item { margin-bottom:16px; }
+        .form-item label { display:block; margin-bottom:6px; }
+        .form-item input, .form-item select {
+            width: 100%; padding:8px; border:1px solid #ddd; border-radius:6px;
+        }
+        .form-btns { text-align:right; margin-top:20px; }
+        .btn-cancel { background:#9ca3af; }
+
+        #addModal .dialog { width: 700px !important; }
+        #addForm {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 20px;
+        }
+        #addForm .form-item { margin: 0 !important; }
+        #addForm .region-group,
+        #addForm .address-group {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        #addForm .region-group select { flex: 1; }
+        #addForm .form-btns {
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 顶部导航栏 ========== -->
+<div class="navbar">
+    <div class="logo">业务管理系统</div>
+    <div class="nav-tabs">
+        <div class="nav-item" data-page="index">首页</div>
+        <div class="nav-item active" data-page="dealer">经销商配置管理</div>
+        <div class="nav-item" data-page="order">销售订单管理</div>
+        <div class="nav-item" data-page="activityConfig">活动配置管理</div>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="title">经销商管理</h2>
+    <div class="tool-bar">
+        <button class="btn btn-add" id="openAdd">+ 新增经销商</button>
+        <div>
+            每页显示：
+            <select id="pageSizeSelect" class="page-size">
+                <option value="10">10</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select> 条
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>经销商名称</th>
+            <th>经销商负责人</th>
+            <th>经销商电话</th>
+            <th>省</th>
+            <th>市</th>
+            <th>区县</th>
+            <th>详细地址</th>
+            <th>销售人员</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="dealerTable"></tbody>
+    </table>
+
+    <div class="pagination">
+        <span>总条数：<span id="total">0</span></span>
+        <button class="page-btn" id="first">首页</button>
+        <button class="page-btn" id="prev">上一页</button>
+        <span id="pageInfo">第 1 页</span>
+        <button class="page-btn" id="next">下一页</button>
+        <button class="page-btn" id="last">尾页</button>
+    </div>
+</div>
+
+<!-- 新增弹窗 -->
+<div class="mask" id="addModal">
+    <div class="dialog">
+        <h3>新增经销商</h3>
+        <form id="addForm">
+            <div class="form-item">
+                <label>经销商名称</label>
+                <input type="text" name="dealerName" required>
+            </div>
+            <div class="form-item">
+                <label>经销商负责人</label>
+                <input type="text" name="dealerLeader" required>
+            </div>
+            <div class="form-item">
+                <label>经销商电话</label>
+                <input type="text" name="dealerPhone" required>
+            </div>
+            <div class="form-item">
+                <label>销售人员</label>
+                <input type="text" name="seller" required>
+            </div>
+            <div class="form-item region-group">
+                <label>省市区</label>
+                <select id="province" name="provinceCode" onchange="loadCities()">
+                    <option value="">请选择省份</option>
+                </select>
+                <select id="city" name="cityCode" onchange="loadAreas()">
+                    <option value="">请选择城市</option>
+                </select>
+                <select id="area" name="areaCode">
+                    <option value="">请选择区县</option>
+                </select>
+            </div>
+            <div class="form-item address-group">
+                <label>详细地址</label>
+                <input type="text" name="dealerAddress" required>
+            </div>
+            <div class="form-btns">
+                <button type="button" class="btn btn-cancel" id="closeModal">取消</button>
+                <button type="submit" class="btn btn-add">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="mask" id="editModal">
+    <div class="dialog">
+        <h3>编辑经销商</h3>
+        <form id="editForm">
+            <input type="hidden" name="id" id="edit_id">
+            <div class="form-item">
+                <label>经销商名称</label>
+                <input type="text" name="dealerName" id="edit_dealerName" required>
+            </div>
+            <div class="form-item">
+                <label>经销商负责人</label>
+                <input type="text" name="dealerLeader" id="edit_dealerLeader" required>
+            </div>
+            <div class="form-item">
+                <label>经销商电话</label>
+                <input type="text" name="dealerPhone" id="edit_dealerPhone" required>
+            </div>
+            <div class="form-item">
+                <label>省份</label>
+                <select id="editProvince" name="provinceCode" onchange="loadEditCities()">
+                    <option value="">请选择省份</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label>城市</label>
+                <select id="editCity" name="cityCode" onchange="loadEditAreas()">
+                    <option value="">请选择城市</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label>区县</label>
+                <select id="editArea" name="areaCode">
+                    <option value="">请选择区县</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label>经销商地址</label>
+                <input type="text" name="dealerAddress" id="edit_dealerAddress" required>
+            </div>
+            <div class="form-item">
+                <label>销售人员</label>
+                <input type="text" name="seller" id="edit_seller" required>
+            </div>
+            <div class="form-btns">
+                <button type="button" class="btn btn-cancel" id="closeEditModal">取消</button>
+                <button type="submit" class="btn btn-add">保存修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="/js/dealer.js"></script>
+<script src="/js/region.js"></script>
+<script src="/js/nav.js"></script>
+
+</body>
+</html>

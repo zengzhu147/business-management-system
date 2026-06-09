@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dealer.dao.DealerDao">
+
+    <select id="selectPage" parameterType="com.dealer.common.Page"
+            resultType="com.dealer.entity.Dealer">
+        SELECT
+        id as id,
+        dealerName as dealerName,
+        dealerLeader as dealerLeader,
+        provinceCode as provinceCode,
+        (select name from region where code = provinceCode) as provinceName,
+        cityCode as cityCode,
+        (select name from region where code = cityCode) as cityName,
+        areaCode as areaCode,
+        (select name from region where code = areaCode) as areaName,
+        dealerPhone as dealerPhone,
+        dealerAddress as dealerAddress,
+        seller as seller
+        FROM dealer
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*) FROM dealer
+    </select>
+
+
+
+    <select id="getAllDealer" resultType="com.dealer.entity.Dealer">
+        SELECT * FROM dealer
+    </select>
+
+
+    <insert id="insert">
+    INSERT INTO dealer
+    (dealerName,
+    dealerLeader,
+    dealerPhone,
+    provinceCode,
+    cityCode,
+    areaCode,
+    dealerAddress,
+    seller)
+    VALUES(
+    #{dealerName},
+    #{dealerLeader},
+    #{dealerPhone},
+    #{provinceCode},
+    #{cityCode},
+    #{areaCode},
+    #{dealerAddress},
+    #{seller})
+</insert>
+    <update id="update">
+      UPDATE dealer
+      SET dealerName=#{dealerName},
+      dealerLeader=#{dealerLeader},
+      dealerPhone=#{dealerPhone},
+      provinceCode=#{provinceCode},
+      cityCode=#{cityCode},
+      areaCode=#{areaCode},
+      dealerAddress=#{dealerAddress},
+      seller=#{seller}
+    WHERE id=#{id}
+  </update>
+
+    <delete id="delete">
+    DELETE FROM dealer WHERE id=#{id}
+</delete>
+
+</mapper>

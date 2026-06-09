@@ -1,0 +1,56 @@
+2026-06-09 21:50:11 [main] INFO  com.dealer.DealerApplication - Starting DealerApplication using Java 1.8.0_152 on LAPTOP-KGR9QT5V with PID 10232 (E:\code\dealermanager\target\classes started by 娜娜 in E:\code\dealermanager)
+2026-06-09 21:50:11 [main] DEBUG com.dealer.DealerApplication - Running with Spring Boot v2.7.15, Spring v5.3.29
+2026-06-09 21:50:11 [main] INFO  com.dealer.DealerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-06-09 21:50:15 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2026-06-09 21:50:15 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 21:50:15 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.79]
+2026-06-09 21:50:15 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-06-09 21:50:15 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3669 ms
+2026-06-09 21:50:15 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 21:50:16 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 21:50:16 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./dealer_db'
+2026-06-09 21:50:19 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page template: index
+2026-06-09 21:50:21 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2026-06-09 21:50:21 [main] INFO  com.dealer.DealerApplication - Started DealerApplication in 11.771 seconds (JVM running for 16.498)
+2026-06-09 21:50:43 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-09 21:50:43 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-06-09 21:50:43 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+2026-06-09 21:50:54 [http-nio-8080-exec-8] DEBUG c.dealer.dao.DealerDao.getAllDealer - ==>  Preparing: SELECT * FROM dealer
+2026-06-09 21:50:54 [http-nio-8080-exec-10] DEBUG c.d.dao.ActivityConfigDao.selectPage - ==>  Preparing: SELECT id as id, dealerId as dealerId, (select dealerName from dealer where id = dealerId) as dealerName, activityType as activityType, activityComment as activityComment FROM activity_config LIMIT ?, ?
+2026-06-09 21:50:54 [http-nio-8080-exec-8] DEBUG c.dealer.dao.DealerDao.getAllDealer - ==> Parameters: 
+2026-06-09 21:50:54 [http-nio-8080-exec-10] DEBUG c.d.dao.ActivityConfigDao.selectPage - ==> Parameters: 0(Integer), 10(Integer)
+2026-06-09 21:50:54 [http-nio-8080-exec-10] DEBUG c.d.dao.ActivityConfigDao.selectPage - <==      Total: 10
+2026-06-09 21:50:54 [http-nio-8080-exec-10] DEBUG c.d.d.ActivityConfigDao.selectCount - ==>  Preparing: SELECT COUNT(*) FROM activity_config
+2026-06-09 21:50:54 [http-nio-8080-exec-10] DEBUG c.d.d.ActivityConfigDao.selectCount - ==> Parameters: 
+2026-06-09 21:50:54 [http-nio-8080-exec-8] DEBUG c.dealer.dao.DealerDao.getAllDealer - <==      Total: 17
+2026-06-09 21:50:54 [http-nio-8080-exec-10] DEBUG c.d.d.ActivityConfigDao.selectCount - <==      Total: 1
+2026-06-09 21:52:27 [http-nio-8080-exec-7] DEBUG c.dealer.dao.DealerDao.getAllDealer - ==>  Preparing: SELECT * FROM dealer
+2026-06-09 21:52:27 [http-nio-8080-exec-7] DEBUG c.dealer.dao.DealerDao.getAllDealer - ==> Parameters: 
+2026-06-09 21:52:27 [http-nio-8080-exec-1] DEBUG com.dealer.dao.OrderDao.selectPage - ==>  Preparing: SELECT id as id, dealerId as dealerId, (select dealerName from dealer where id = dealerId) as dealerName, productName as productName, orderDate as orderDate, quantity as quantity, price as price, totalAmount as totalAmount, marketFee as marketFee, giftQuantity as giftQuantity, expectRate as expectRate, realRate as realRate, balanceFee as balanceFee FROM sale_order LIMIT ?, ?
+2026-06-09 21:52:27 [http-nio-8080-exec-1] DEBUG com.dealer.dao.OrderDao.selectPage - ==> Parameters: 0(Integer), 10(Integer)
+2026-06-09 21:52:27 [http-nio-8080-exec-7] DEBUG c.dealer.dao.DealerDao.getAllDealer - <==      Total: 17
+2026-06-09 21:52:27 [http-nio-8080-exec-1] DEBUG com.dealer.dao.OrderDao.selectPage - <==      Total: 10
+2026-06-09 21:52:27 [http-nio-8080-exec-1] DEBUG com.dealer.dao.OrderDao.selectCount - ==>  Preparing: SELECT COUNT(*) FROM sale_order
+2026-06-09 21:52:27 [http-nio-8080-exec-1] DEBUG com.dealer.dao.OrderDao.selectCount - ==> Parameters: 
+2026-06-09 21:52:27 [http-nio-8080-exec-1] DEBUG com.dealer.dao.OrderDao.selectCount - <==      Total: 1
+2026-06-09 21:52:34 [http-nio-8080-exec-2] DEBUG com.dealer.dao.DealerDao.selectPage - ==>  Preparing: SELECT id as id, dealerName as dealerName, dealerLeader as dealerLeader, provinceCode as provinceCode, (select name from region where code = provinceCode) as provinceName, cityCode as cityCode, (select name from region where code = cityCode) as cityName, areaCode as areaCode, (select name from region where code = areaCode) as areaName, dealerPhone as dealerPhone, dealerAddress as dealerAddress, seller as seller FROM dealer LIMIT ?, ?
+2026-06-09 21:52:34 [http-nio-8080-exec-10] DEBUG com.dealer.dao.RegionDao.listByLevel - ==>  Preparing: SELECT * FROM region WHERE level = ? ORDER BY code
+2026-06-09 21:52:34 [http-nio-8080-exec-2] DEBUG com.dealer.dao.DealerDao.selectPage - ==> Parameters: 0(Integer), 10(Integer)
+2026-06-09 21:52:34 [http-nio-8080-exec-10] DEBUG com.dealer.dao.RegionDao.listByLevel - ==> Parameters: 1(Integer)
+2026-06-09 21:52:34 [http-nio-8080-exec-10] DEBUG com.dealer.dao.RegionDao.listByLevel - <==      Total: 4
+2026-06-09 21:52:34 [http-nio-8080-exec-3] DEBUG com.dealer.dao.RegionDao.listByLevel - ==>  Preparing: SELECT * FROM region WHERE level = ? ORDER BY code
+2026-06-09 21:52:34 [http-nio-8080-exec-3] DEBUG com.dealer.dao.RegionDao.listByLevel - ==> Parameters: 1(Integer)
+2026-06-09 21:52:34 [http-nio-8080-exec-3] DEBUG com.dealer.dao.RegionDao.listByLevel - <==      Total: 4
+2026-06-09 21:52:34 [http-nio-8080-exec-2] DEBUG com.dealer.dao.DealerDao.selectPage - <==      Total: 10
+2026-06-09 21:52:34 [http-nio-8080-exec-2] DEBUG com.dealer.dao.DealerDao.selectCount - ==>  Preparing: SELECT COUNT(*) FROM dealer
+2026-06-09 21:52:34 [http-nio-8080-exec-2] DEBUG com.dealer.dao.DealerDao.selectCount - ==> Parameters: 
+2026-06-09 21:52:34 [http-nio-8080-exec-2] DEBUG com.dealer.dao.DealerDao.selectCount - <==      Total: 1
+2026-06-09 21:53:23 [http-nio-8080-exec-4] DEBUG c.d.dao.ActivityConfigDao.selectPage - ==>  Preparing: SELECT id as id, dealerId as dealerId, (select dealerName from dealer where id = dealerId) as dealerName, activityType as activityType, activityComment as activityComment FROM activity_config LIMIT ?, ?
+2026-06-09 21:53:23 [http-nio-8080-exec-7] DEBUG c.dealer.dao.DealerDao.getAllDealer - ==>  Preparing: SELECT * FROM dealer
+2026-06-09 21:53:23 [http-nio-8080-exec-4] DEBUG c.d.dao.ActivityConfigDao.selectPage - ==> Parameters: 0(Integer), 10(Integer)
+2026-06-09 21:53:23 [http-nio-8080-exec-7] DEBUG c.dealer.dao.DealerDao.getAllDealer - ==> Parameters: 
+2026-06-09 21:53:23 [http-nio-8080-exec-7] DEBUG c.dealer.dao.DealerDao.getAllDealer - <==      Total: 17
+2026-06-09 21:53:23 [http-nio-8080-exec-4] DEBUG c.d.dao.ActivityConfigDao.selectPage - <==      Total: 10
+2026-06-09 21:53:23 [http-nio-8080-exec-4] DEBUG c.d.d.ActivityConfigDao.selectCount - ==>  Preparing: SELECT COUNT(*) FROM activity_config
+2026-06-09 21:53:23 [http-nio-8080-exec-4] DEBUG c.d.d.ActivityConfigDao.selectCount - ==> Parameters: 
+2026-06-09 21:53:23 [http-nio-8080-exec-4] DEBUG c.d.d.ActivityConfigDao.selectCount - <==      Total: 1

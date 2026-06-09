@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dealer.dao.RegionDao">
+
+    <select id="listByLevel" resultType="com.dealer.entity.Region">
+        SELECT * FROM region WHERE level = #{level} ORDER BY code
+    </select>
+
+    <select id="listByParentCode" resultType="com.dealer.entity.Region">
+        SELECT * FROM region WHERE parent_code = #{parentCode} ORDER BY code
+    </select>
+
+</mapper>

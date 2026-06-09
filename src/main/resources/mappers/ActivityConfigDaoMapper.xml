@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dealer.dao.ActivityConfigDao">
+
+    <select id="selectPage" parameterType="com.dealer.common.Page"
+            resultType="com.dealer.entity.ActivityConfig">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+    (select dealerName from dealer where id = dealerId) as dealerName,
+    activityType as activityType,
+    activityComment as activityComment
+        FROM activity_config
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*) FROM activity_config
+    </select>
+
+    <select id="getActivityConfigInfo" parameterType="com.dealer.entity.ActivityConfig"
+            resultType="com.dealer.entity.ActivityConfig">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+        (select dealerName from dealer where id = dealerId) as dealerName,
+        activityType as activityType,
+        activityComment as activityComment
+        FROM activity_config
+        <where>
+            1=1
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <!-- 经销商ID -->
+            <if test="dealerId != null and dealerId != ''">
+                AND dealerId
+            </if>
+
+            <!-- 产品名称 模糊查询 -->
+            <if test="activityType != null and productName != ''">
+                AND activityType = #{activityType}
+            </if>
+
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert">
+    INSERT INTO activity_config
+    (dealerId,
+    activityType,
+    activityComment
+    )
+    VALUES(
+    #{dealerId},
+    #{activityType},
+    #{activityComment}
+    )
+</insert>
+    <update id="update">
+      UPDATE activity_config
+      SET dealerId=#{dealerId},
+      activityType=#{activityType},
+      activityComment=#{activityComment}
+    WHERE id=#{id}
+  </update>
+
+    <delete id="delete">
+    DELETE FROM activity_config WHERE id=#{id}
+</delete>
+
+</mapper>
