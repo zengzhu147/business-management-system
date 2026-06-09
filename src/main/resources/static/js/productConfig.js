@@ -36,8 +36,8 @@ function bindEvents() {
             var data = dataList[0];
             $("#edit_id").val(data.id);
             $("#edit_productName").val(data.productName);
-            $("#edit_productPrice").val(data.productPrice);
-            $("#edit_remark").val(data.remark);
+            $("#edit_price").val(data.price);
+            $("#edit_comment").val(data.comment);
             $("#editModal").fadeIn();
         });
     });
@@ -68,8 +68,8 @@ function bindEvents() {
         $.get("/api/productConfig/getProductConfigInfo", { id }, function (dataList) {
             var data = dataList[0];
             $("#detail_productName").val(data.productName);
-            $("#detail_productPrice").val(data.productPrice);
-            $("#detail_remark").val(data.remark);
+            $("#detail_price").val(data.price);
+            $("#detail_comment").val(data.comment);
             $("#detailModal").fadeIn();
         });
     });
@@ -110,10 +110,9 @@ function loadList() {
                 <td class="data-id" style="display:none">${item.id}</td>
                 <td>${index + 1}</td>
                 <td>${item.productName}</td>
-                <td>${item.productPrice}</td>
-                <td>${item.remark}</td>
+                <td>${item.price}</td>
+                <td>${item.comment}</td>
                 <td>
-                    <button class="btn btn-view btn-view">详情</button>
                     <button class="btn btn-edit edit-btn">编辑</button>
                     <button class="btn btn-del del-btn">删除</button>
                 </td>

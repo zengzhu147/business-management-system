@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dealer.dao.ProductConfigDao">
+
+    <select id="selectPage" parameterType="com.dealer.common.Page"
+            resultType="com.dealer.entity.ProductConfig">
+        SELECT
+        id as id,
+        productName as productName,
+        price as price,
+    comment as comment
+        FROM product_config
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*) FROM product_config
+    </select>
+
+    <select id="getProductConfigInfo" parameterType="com.dealer.entity.ProductConfig"
+            resultType="com.dealer.entity.ProductConfig">
+        SELECT
+        id as id,
+        productName as productName,
+        price as price,
+        comment as comment
+        FROM product_config
+        <where>
+            1=1
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+
+            <!-- 产品名称 模糊查询 -->
+            <if test="productName != null and productName != ''">
+                AND productName = #{productName}
+            </if>
+
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert">
+    INSERT INTO product_config
+    (productName,
+    price,
+    comment
+    )
+    VALUES(
+    #{productName},
+    #{price},
+    #{comment}
+    )
+</insert>
+    <update id="update">
+      UPDATE product_config
+      SET productName=#{productName},
+      price=#{price},
+      comment=#{comment}
+    WHERE id=#{id}
+  </update>
+
+    <delete id="delete">
+    DELETE FROM product_config WHERE id=#{id}
+</delete>
+
+</mapper>

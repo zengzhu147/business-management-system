@@ -40,3 +40,10 @@ CREATE TABLE IF NOT EXISTS activity_config (
     activityType VARCHAR(50) COMMENT '活动类型',
     activityComment VARCHAR(100) NULL COMMENT '活动备注'
 );
+
+CREATE TABLE IF NOT EXISTS product_config (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    productName VARCHAR(50) COMMENT '产品名称',
+    price DECIMAL(12,2) COMMENT '产品单价',
+    comment VARCHAR(100) NULL COMMENT '产品备注'
+);
