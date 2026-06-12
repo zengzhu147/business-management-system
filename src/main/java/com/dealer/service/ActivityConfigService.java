@@ -29,6 +29,12 @@ public class ActivityConfigService {
         return result;
     }
 
+    public List<ActivityConfig> getAllActivityConfig() {
+        List<ActivityConfig> result = activityConfigDao.getAllActivityConfig();
+        return result;
+    }
+
+
     public void insert(ActivityConfig activityConfig ){
         activityConfigDao.insert(activityConfig);
     }

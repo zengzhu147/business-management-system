@@ -36,6 +36,13 @@ public class ActivityConfigApiController {
         return result;
     }
 
+    @GetMapping("/all")
+    public List<ActivityConfig> getAllActivityConfig() {
+        // 1. 查询分页数据
+        List<ActivityConfig> result = activityConfigService.getAllActivityConfig();
+        return result;
+    }
+
 
 
     // 新增接口：接收表单 + 保存 + 刷新列表

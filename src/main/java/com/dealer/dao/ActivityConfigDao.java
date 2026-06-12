@@ -13,6 +13,8 @@ public interface ActivityConfigDao {
 
     List<ActivityConfig> getActivityConfigInfo(ActivityConfig activityConfig);
 
+    List<ActivityConfig> getAllActivityConfig();
+
     void insert(ActivityConfig activityConfig);
 
     void update(ActivityConfig activityConfig);

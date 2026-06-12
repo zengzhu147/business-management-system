@@ -49,6 +49,19 @@
         ORDER BY id DESC
     </select>
 
+
+
+    <select id="getAllActivityConfig"
+            resultType="com.dealer.entity.ActivityConfig">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+        (select dealerName from dealer where id = dealerId) as dealerName,
+        activityType as activityType,
+        activityComment as activityComment
+        FROM activity_config
+    </select>
+
     <insert id="insert">
     INSERT INTO activity_config
     (dealerId,

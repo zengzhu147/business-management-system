@@ -110,11 +110,11 @@ function bindEvents() {
         let tr = $(this).closest("tr");
         let id = tr.find(".data-id").text();
 
-        $.get("/api/activity/getInfo", { id }, function (dataList) {
+        $.get("/api/activity/getActivityInfo", { id }, function (dataList) {
             var data = dataList[0];
             $("#edit_id").val(data.id);
             $("#edit_activityTypeId").val(data.activityTypeId);
-            $("#edit_activityTypeName").val(data.activityTypeName);
+            $("#edit_activityType").val(data.activityType);
             $("#edit_dealerId").val(data.dealerId);
             $("#edit_dealerName").val(data.dealerName);
             $("#edit_activityTime").val(data.activityTime ? data.activityTime.split('T')[0] : '');
@@ -197,12 +197,12 @@ function searchActivityType() {
         panel.append('<div class="select-item">暂无活动类型</div>');
         return;
     }
-    let list = allActivityType.filter(item => item.activityTypeName?.toLowerCase().includes(key));
+    let list = allActivityType.filter(item => item.activityType?.toLowerCase().includes(key));
     if (list.length === 0) {
         panel.append('<div class="select-item">未找到匹配</div>');
     } else {
         list.forEach(item => {
-            panel.append(`<div class="select-item" onclick="selectActivityType(${item.id},'${item.activityTypeName}')">${item.activityTypeName}</div>`);
+            panel.append(`<div class="select-item" onclick="selectActivityType(${item.id},'${item.activityType}')">${item.activityType}</div>`);
         });
     }
 }
@@ -263,13 +263,12 @@ function loadActivityList() {
                 <td class="data-id" style="display:none">${item.id}</td>
                 <td>${index + 1}</td>
                 <td>${item.activityTime ? new Date(item.activityTime).toISOString().split('T')[0] : ''}</td>
-                <td>${item.activityTypeName}</td>
+                <td>${item.activityType}</td>
                 <td>${item.dealerName}</td>
                 <td>${item.activityContent}</td>
                 <td>${item.applyFee}</td>
-                <td>${item.writeOffStatus}</td>
+                <td>${item.writeOffStatus === 'Y' ? '是' : '否'}</td>
                 <td>
-                    <button class="btn btn-view view-btn">查看</button>
                     <button class="btn btn-edit edit-btn">编辑</button>
                     <button class="btn btn-del del-btn">删除</button>
                 </td>
@@ -285,7 +284,7 @@ function loadActivityList() {
 // 打开详情弹窗
 function openDetail(id) {
     $.get("/api/activity/getById", { id }, data => {
-        $("#detail_activityTypeName").val(data.activityTypeName);
+        $("#detail_activityType").val(data.activityType);
         $("#detail_dealerName").val(data.dealerName);
         $("#detail_activityTime").val(data.activityTime ? new Date(data.activityTime).toISOString().split('T')[0] : '');
         $("#detail_applyFee").val(data.applyFee);

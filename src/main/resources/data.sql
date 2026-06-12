@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS product_config (
 
 CREATE TABLE IF NOT EXISTS activity_info (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    activityTypeId BIGINT COMMENT '活动类型ID',
     dealerId BIGINT COMMENT '经销商ID',
     activityType VARCHAR(50) COMMENT '活动类型',
     activityTime DATETIME COMMENT '活动时间',

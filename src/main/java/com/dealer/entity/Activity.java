@@ -10,6 +10,7 @@ import java.util.Date;
 public class Activity {
 
     private Integer id; //主键
+    private Integer activityTypeId; // 活动id
     private Integer dealerId; // 经销商ID
     private String dealerName; //经销商名称
     private String activityType; //活动类型

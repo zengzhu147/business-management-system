@@ -10,7 +10,8 @@
         id as id,
         dealerId as dealerId,
     (select dealerName from dealer where id = dealerId) as dealerName,
-        activityType as activityType,
+        activityTypeId as activityTypeId,
+        (select activityType from activity_config where id = activityTypeId) as activityType,
         activityTime as activityTime,
         applyFee as applyFee,
         writeOffStatus as writeOffStatus,
@@ -30,7 +31,8 @@
         id as id,
         dealerId as dealerId,
         (select dealerName from dealer where id = dealerId) as dealerName,
-        activityType as activityType,
+        activityTypeId as activityTypeId,
+        (select activityType from activity_config where id = activityTypeId) as activityType,
         activityTime as activityTime,
         applyFee as applyFee,
         writeOffStatus as writeOffStatus,
@@ -58,13 +60,13 @@
     <insert id="insert">
         INSERT INTO activity_info
         (dealerId,
-         activityType,
+         activityTypeId,
          activityTime,
          applyFee,
          writeOffStatus,
          activityContent)
         VALUES (#{dealerId},
-                #{activityType},
+                #{activityTypeId},
                 #{activityTime},
                 #{applyFee},
                 #{writeOffStatus},
@@ -73,7 +75,7 @@
     <update id="update">
         UPDATE activity_info
         SET dealerId=#{dealerId},
-            activityType=#{activityType},
+            activityTypeId=#{activityTypeId},
             activityTime=#{activityTime},
             applyFee=#{applyFee},
             writeOffStatus=#{writeOffStatus},
