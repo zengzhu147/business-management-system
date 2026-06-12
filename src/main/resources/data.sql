@@ -47,3 +47,15 @@ CREATE TABLE IF NOT EXISTS product_config (
     price DECIMAL(12,2) COMMENT '产品单价',
     comment VARCHAR(100) NULL COMMENT '产品备注'
 );
+
+CREATE TABLE IF NOT EXISTS activity_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    dealerId BIGINT COMMENT '经销商ID',
+    activityType VARCHAR(50) COMMENT '活动类型',
+    activityTime DATETIME COMMENT '活动时间',
+
+    applyFee DECIMAL(12,2) COMMENT '申请费用',
+    writeOffStatus VARCHAR(100) NULL COMMENT '核销情况',
+    activityContent VARCHAR(100) NULL COMMENT '活动内容'
+
+    );

@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function () {
             case 'activityConfig':
                 window.location.href = '/activityConfig/activityConfigPage';
                 break;
+            case 'productConfig':
+                window.location.href = '/productConfig/productConfigPage';
         }
     });
 });

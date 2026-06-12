@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dealer.dao.ActivityDao">
+
+    <select id="selectPage" parameterType="com.dealer.common.Page"
+            resultType="com.dealer.entity.Activity">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+    (select dealerName from dealer where id = dealerId) as dealerName,
+        activityType as activityType,
+        activityTime as activityTime,
+        applyFee as applyFee,
+        writeOffStatus as writeOffStatus,
+        activityContent as activityContent
+        FROM activity_info
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+
+    <select id="selectCount" resultType="long">
+        SELECT COUNT(*) FROM activity_info
+    </select>
+
+    <select id="getActivityInfo" parameterType="com.dealer.entity.Activity"
+            resultType="com.dealer.entity.Activity">
+        SELECT
+        id as id,
+        dealerId as dealerId,
+        (select dealerName from dealer where id = dealerId) as dealerName,
+        activityType as activityType,
+        activityTime as activityTime,
+        applyFee as applyFee,
+        writeOffStatus as writeOffStatus,
+        activityContent as activityContent
+        FROM activity_info
+        <where>
+            1=1
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <!-- 经销商ID -->
+            <if test="dealerId != null and dealerId != ''">
+                AND dealerId
+            </if>
+
+            <!-- 产品名称 模糊查询 -->
+            <if test="activityType != null and productName != ''">
+                AND activityType = #{activityType}
+            </if>
+
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO activity_info
+        (dealerId,
+         activityType,
+         activityTime,
+         applyFee,
+         writeOffStatus,
+         activityContent)
+        VALUES (#{dealerId},
+                #{activityType},
+                #{activityTime},
+                #{applyFee},
+                #{writeOffStatus},
+                #{activityContent})
+</insert>
+    <update id="update">
+        UPDATE activity_info
+        SET dealerId=#{dealerId},
+            activityType=#{activityType},
+            activityTime=#{activityTime},
+            applyFee=#{applyFee},
+            writeOffStatus=#{writeOffStatus},
+            activityContent=#{activityContent}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+    DELETE FROM activity_info WHERE id=#{id}
+</delete>
+
+</mapper>
