@@ -14,16 +14,13 @@ CREATE TABLE IF NOT EXISTS sale_order (
     id INT AUTO_INCREMENT PRIMARY KEY,
     dealerId BIGINT,
     dealerName VARCHAR(50),
-    productName VARCHAR(50),
+    productId BIGINT COMMENT '产品id',
     orderDate DATETIME,
     quantity BIGINT,
     price DECIMAL(12,2),
     totalAmount DECIMAL(12,2),
     marketFee DECIMAL(12,2),
-    giftQuantity BIGINT,
-    expectRate DECIMAL(10,2),
-    realRate DECIMAL(10,2),
-    balanceFee DECIMAL(12,2)
+    expectRate DECIMAL(10,2)
 );
 
 CREATE TABLE IF NOT EXISTS region (

@@ -11,6 +11,7 @@ public class Order {
     private Integer id;
     private Integer dealerId; // 经销商ID
     private String dealerName; // 经销商名称
+    private Integer productId; // 产品ID
     private String productName; // 产品名称
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date orderDate; // 订单日期

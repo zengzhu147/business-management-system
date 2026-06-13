@@ -10,16 +10,14 @@
         id as id,
         dealerId as dealerId,
     (select dealerName from dealer where id = dealerId) as dealerName,
-    productName as productName,
+    productId as productId,
+    (select productName from product_config where id = productId) as productName,
     orderDate as orderDate,
     quantity as quantity,
     price as price,
     totalAmount as totalAmount,
     marketFee as marketFee,
-    giftQuantity as giftQuantity,
-    expectRate as expectRate,
-    realRate as realRate,
-    balanceFee as balanceFee
+    expectRate as expectRate
         FROM sale_order
         LIMIT #{start}, #{pageSize}
     </select>
@@ -35,16 +33,14 @@
         id as id,
         dealerId as dealerId,
     (select dealerName from dealer where id = dealerId) as dealerName,
-    productName as productName,
+        productId as productId,
+        (select productName from product_config where id = productId) as productName,
     orderDate as orderDate,
     quantity as quantity,
     price as price,
     totalAmount as totalAmount,
     marketFee as marketFee,
-    giftQuantity as giftQuantity,
-    expectRate as expectRate,
-    realRate as realRate,
-    balanceFee as balanceFee
+    expectRate as expectRate
         FROM sale_order
         <where>
             1=1
@@ -66,11 +62,6 @@
                 AND quantity = #{quantity}
             </if>
 
-            <!-- 其他字段都这么写 -->
-            <if test="giftQuantity != null">
-                AND giftQuantity = #{giftQuantity}
-            </if>
-
         </where>
         ORDER BY id DESC
     </select>
@@ -81,44 +72,35 @@
     <insert id="insert">
     INSERT INTO sale_order
     (dealerId,
-    productName,
+    productId,
     orderDate,
     quantity,
     price,
     totalAmount,
     marketFee,
-    giftQuantity,
-    expectRate,
-    realRate,
-    balanceFee
+    expectRate
     )
     VALUES(
     #{dealerId},
-    #{productName},
+    #{productId},
     #{orderDate},
     #{quantity},
     #{price},
     #{totalAmount},
     #{marketFee},
-    #{giftQuantity},
-    #{expectRate},
-    #{realRate},
-    #{balanceFee}
+    #{expectRate}
     )
 </insert>
     <update id="update">
       UPDATE sale_order
       SET dealerId=#{dealerId},
-      productName=#{productName},
+      productId=#{productId},
       orderDate=#{orderDate},
       quantity=#{quantity},
       price=#{price},
       totalAmount=#{totalAmount},
       marketFee=#{marketFee},
-      giftQuantity=#{giftQuantity},
-      expectRate=#{expectRate},
-      realRate=#{realRate},
-      balanceFee=#{balanceFee}
+      expectRate=#{expectRate}
     WHERE id=#{id}
   </update>
 

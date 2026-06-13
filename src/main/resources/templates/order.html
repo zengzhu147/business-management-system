@@ -211,9 +211,10 @@
             <th>经销商</th>
             <th>产品名称</th>
             <th>数量</th>
-            <th>随赠品数量</th>
             <th>单价(元)</th>
             <th>订单总金额（元）</th>
+            <th>预计投入比例（%）</th>
+            <th>计提市场费用（元）</th>
             <th>操作</th>
         </tr>
         </thead>
@@ -257,10 +258,10 @@
                 <input type="number" id="quantity" name="quantity" required>
             </div>
 
-            <div class="form-item">
+            <!--<div class="form-item">
                 <label>随赠品数量</label>
                 <input type="number" name="giftQuantity" value="0" min="0">
-            </div>
+            </div>-->
 
             <div class="form-item">
                 <label>单价（元）</label>
@@ -282,15 +283,15 @@
                 <input readonly step="0.01" id="marketFee" name="marketFee" required>
             </div>
 
-            <div class="form-item">
+           <!-- <div class="form-item">
                 <label>实际投入比例(%)</label>
                 <input step="0.01" id="realRate" name="realRate">
-            </div>
+            </div>-->
 
-            <div class="form-item">
+            <!--<div class="form-item">
                 <label>市场费用结余</label>
                 <input readonly step="0.01" id="balanceFee" name="balanceFee">
-            </div>
+            </div>-->
 
             <div class="form-btns">
                 <button type="button" class="btn btn-cancel">取消</button>

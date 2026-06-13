@@ -238,9 +238,10 @@ function loadOrderList() {
                 <td>${item.dealerName}</td>
                 <td>${item.productName}</td>
                 <td>${item.quantity}</td>
-                <td>${item.giftQuantity}</td>
                 <td>${item.price}</td>
                 <td>${item.totalAmount}</td>
+                <td>${item.expectRate}</td>
+                <td>${item.marketFee}</td>
                 <td>
                     <button class="btn btn-edit edit-btn">编辑</button>
                     <button class="btn btn-del del-btn">删除</button>
@@ -260,13 +261,10 @@ function openDetail(id) {
     $("#detailOrderDate").val(data.orderDate ? new Date(data.orderDate).toISOString().split('T')[0] : '');
     $("#detailProductName").val(data.productName);
     $("#detailQuantity").val(data.quantity);
-    $("#detailGiftQuantity").val(data.giftQuantity);
     $("#detailPrice").val(data.price);
     $("#detailTotalAmount").val(data.totalAmount);
     $("#detailMarketFee").val(data.marketFee);
     $("#detailExpectRate").val(data.expectRate);
-    $("#detailRealRate").val(data.realRate);
-    $("#detailBalanceFee").val(data.balanceFee);
     $("#detailModal").fadeIn();
 });
 }
