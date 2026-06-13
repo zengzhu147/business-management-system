@@ -38,6 +38,12 @@ public class ProductConfigApiController {
         return result;
     }
 
+    @GetMapping("/all")
+    public List<ProductConfig> getAllProductConfigInfo() {
+        List<ProductConfig> result = productConfigService.getAllProductConfigInfo();
+        return result;
+    }
+
 
 
     // 新增接口：接收表单 + 保存 + 刷新列表

@@ -30,6 +30,13 @@ public class ProductConfigService {
         return result;
     }
 
+    public List<ProductConfig> getAllProductConfigInfo() {
+        List<ProductConfig> result = productConfigDao.getAllProductConfigInfo();
+        return result;
+    }
+
+
+
     public void insert(ProductConfig productConfig ){
         productConfigDao.insert(productConfig);
     }

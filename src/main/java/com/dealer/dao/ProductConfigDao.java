@@ -14,6 +14,8 @@ public interface ProductConfigDao {
 
     List<ProductConfig> getProductConfigInfo(ProductConfig productConfig);
 
+    List<ProductConfig> getAllProductConfigInfo();
+
     void insert(ProductConfig productConfig);
 
     void update(ProductConfig productConfig);

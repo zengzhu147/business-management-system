@@ -43,6 +43,16 @@
         ORDER BY id DESC
     </select>
 
+    <select id="getAllProductConfigInfo"
+            resultType="com.dealer.entity.ProductConfig">
+        SELECT
+        id as id,
+        productName as productName,
+        price as price,
+        comment as comment
+        FROM product_config
+    </select>
+
     <insert id="insert">
     INSERT INTO product_config
     (productName,

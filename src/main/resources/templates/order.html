@@ -110,7 +110,7 @@
             grid-column: 1 / -1;
         }
 
-        .dealer-select-panel {
+        .dealer-select-panel, .product-select-panel {
             position: absolute;
             left: 150px;
             top: 42px;
@@ -124,11 +124,11 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             display: none;
         }
-        .dealer-item {
+        .dealer-item, .product-item {
             padding: 10px 14px;
             cursor: pointer;
         }
-        .dealer-item:hover {
+        .dealer-item:hover, .product-item:hover {
             background: #eff6ff;
         }
 
@@ -175,7 +175,6 @@
             color: #fff;
             box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
-
     </style>
 </head>
 <body>
@@ -248,9 +247,12 @@
                 <input type="date" name="orderDate" required>
             </div>
 
+            <!-- 产品名称：模糊搜索 -->
             <div class="form-item">
                 <label>产品名称</label>
-                <input type="text" name="productName" required>
+                <input type="text" id="productSearch" placeholder="搜索产品名称" required>
+                <div class="product-select-panel" id="productPanel"></div>
+                <input type="hidden" name="productId" id="productId">
             </div>
 
             <div class="form-item">
@@ -258,14 +260,10 @@
                 <input type="number" id="quantity" name="quantity" required>
             </div>
 
-            <!--<div class="form-item">
-                <label>随赠品数量</label>
-                <input type="number" name="giftQuantity" value="0" min="0">
-            </div>-->
-
+            <!-- 单价添加 readonly 禁止手动编辑 -->
             <div class="form-item">
                 <label>单价（元）</label>
-                <input step="0.01" type="number" id="price" name="price" required>
+                <input step="0.01" type="number" id="price" name="price" readonly required>
             </div>
 
             <div class="form-item">
@@ -283,16 +281,6 @@
                 <input readonly step="0.01" id="marketFee" name="marketFee" required>
             </div>
 
-           <!-- <div class="form-item">
-                <label>实际投入比例(%)</label>
-                <input step="0.01" id="realRate" name="realRate">
-            </div>-->
-
-            <!--<div class="form-item">
-                <label>市场费用结余</label>
-                <input readonly step="0.01" id="balanceFee" name="balanceFee">
-            </div>-->
-
             <div class="form-btns">
                 <button type="button" class="btn btn-cancel">取消</button>
                 <button type="submit" class="btn btn-add">保存</button>
@@ -308,10 +296,13 @@
         <form id="editForm">
             <input type="hidden" name="id" id="edit_id">
             <input type="hidden" name="dealerId" id="edit_dealerId">
+            <input type="hidden" name="productId" id="edit_productId">
 
             <div class="form-item form-full">
                 <label>所属经销商</label>
-                <input type="text" id="edit_dealerName" readonly>
+                <input type="text" id="edit_dealerSearch" placeholder="搜索经销商名称">
+                <div class="dealer-select-panel" id="edit_dealerPanel"></div>
+                <input type="hidden" name="dealerId" id="edit_dealerId">
             </div>
 
             <div class="form-item">
@@ -321,7 +312,9 @@
 
             <div class="form-item">
                 <label>产品名称</label>
-                <input type="text" name="productName" id="edit_productName" required>
+                <input type="text" id="edit_productSearch" placeholder="搜索产品名称">
+                <div class="product-select-panel" id="edit_productPanel"></div>
+                <input type="hidden" name="productId" id="edit_productId">
             </div>
 
             <div class="form-item">
@@ -334,9 +327,10 @@
                 <input type="number" name="giftQuantity" id="edit_giftQuantity" min="0">
             </div>
 
+            <!-- 单价添加 readonly 禁止手动编辑 -->
             <div class="form-item">
                 <label>单价（元）</label>
-                <input step="0.01" type="number" name="price" id="edit_price" required>
+                <input step="0.01" type="number" name="price" id="edit_price" readonly required>
             </div>
 
             <div class="form-item">
@@ -352,16 +346,6 @@
             <div class="form-item">
                 <label>计提市场费用（元）</label>
                 <input readonly step="0.01" name="marketFee" id="edit_marketFee" required>
-            </div>
-
-            <div class="form-item">
-                <label>实际投入比例(%)</label>
-                <input step="0.01" name="realRate" id="edit_realRate">
-            </div>
-
-            <div class="form-item">
-                <label>市场费用结余</label>
-                <input readonly step="0.01" id="edit_balanceFee">
             </div>
 
             <div class="form-btns">
@@ -412,14 +396,6 @@
             <div class="form-item">
                 <label>预计投入比例(%)</label>
                 <input readonly id="detailExpectRate">
-            </div>
-            <div class="form-item">
-                <label>实际投入比例(%)</label>
-                <input readonly id="detailRealRate">
-            </div>
-            <div class="form-item">
-                <label>市场费用结余</label>
-                <input readonly id="detailBalanceFee">
             </div>
             <div class="form-btns">
                 <button class="btn btn-cancel">关闭</button>
