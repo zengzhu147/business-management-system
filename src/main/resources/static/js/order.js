@@ -27,14 +27,14 @@ function bindEvents() {
 
     $(".btn-cancel").click(function () {
         $(".mask").fadeOut();
-        $("#dealerPanel, #productPanel").hide();
+        $("#dealerPanel, #productPanel, #edit_dealerPanel, #edit_productPanel").hide();
     });
 
-    // ========== 经销商搜索 ==========
+    // ========== 新增 - 经销商搜索 ==========
     $(document).on("input", "#dealerSearch", function () {
         selectedDealerId = null;
         $("#dealerId").val("");
-        searchDealer();
+        searchDealer("add");
     });
     $(document).on("blur", "#dealerSearch", function () {
         setTimeout(() => {
@@ -46,11 +46,11 @@ function bindEvents() {
     }, 200);
     });
 
-    // ========== 产品搜索 ==========
+    // ========== 新增 - 产品搜索 ==========
     $(document).on("input", "#productSearch", function () {
         selectedProductId = null;
         $("#productId").val("");
-        searchProduct();
+        searchProduct("add");
     });
     $(document).on("blur", "#productSearch", function () {
         setTimeout(() => {
@@ -63,19 +63,58 @@ function bindEvents() {
     }, 200);
     });
 
-    // 计算金额相关
+    // ========== 编辑 - 经销商搜索 ==========
+    $(document).on("input", "#edit_dealerSearch", function () {
+        selectedDealerId = null;
+        $("#edit_dealerId").val("");
+        searchDealer("edit");
+    });
+    $(document).on("blur", "#edit_dealerSearch", function () {
+        setTimeout(() => {
+            if (!selectedDealerId) {
+            $("#edit_dealerSearch").val("");
+            $("#edit_dealerId").val("");
+        }
+        $("#edit_dealerPanel").hide();
+    }, 200);
+    });
+
+    // ========== 编辑 - 产品搜索 ==========
+    $(document).on("input", "#edit_productSearch", function () {
+        selectedProductId = null;
+        $("#edit_productId").val("");
+        searchProduct("edit");
+    });
+    $(document).on("blur", "#edit_productSearch", function () {
+        setTimeout(() => {
+            if (!selectedProductId) {
+            $("#edit_productSearch").val("");
+            $("#edit_productId").val("");
+            $("#edit_price").val("");
+        }
+        $("#edit_productPanel").hide();
+    }, 200);
+    });
+
+    // 金额计算监听
     $("#quantity, #price, #expectRate").on("input", calcAll);
     $("#realRate").on("input", calcBalanceFee);
     $("#edit_quantity, #edit_price, #edit_expectRate").on("input", calcEditAll);
     $("#edit_realRate").on("input", calcEditBalance);
 
-    // 点击空白关闭所有下拉面板
+    // 点击空白关闭下拉面板
     $(document).click(function (e) {
         if (!$(e.target).closest("#dealerSearch, #dealerPanel").length) {
             $("#dealerPanel").hide();
         }
         if (!$(e.target).closest("#productSearch, #productPanel").length) {
             $("#productPanel").hide();
+        }
+        if (!$(e.target).closest("#edit_dealerSearch, #edit_dealerPanel").length) {
+            $("#edit_dealerPanel").hide();
+        }
+        if (!$(e.target).closest("#edit_productSearch, #edit_productPanel").length) {
+            $("#edit_productPanel").hide();
         }
     });
 
@@ -88,13 +127,13 @@ function bindEvents() {
             orderDate: $("input[name=orderDate]").val(),
             productName: $("#productSearch").val(),
             quantity: $("input[name=quantity]").val(),
-            giftQuantity: $("input[name=giftQuantity]").val(),
+            giftQuantity: $("input[name=giftQuantity]").val() || 0,
             price: $("input[name=price]").val(),
             totalAmount: $("#totalAmount").val(),
             expectRate: $("#expectRate").val(),
             marketFee: $("#marketFee").val(),
-            realRate: $("#realRate").val(),
-            balanceFee: $("#balanceFee").val()
+            realRate: $("#realRate").val() || 0,
+            balanceFee: $("#balanceFee").val() || 0
         };
 
         $.ajax({
@@ -120,37 +159,24 @@ function bindEvents() {
             $("#edit_id").val(data.id);
             $("#edit_dealerId").val(data.dealerId);
             $("#edit_productId").val(data.productId);
-            // 回显到搜索框（不是只读框）
+            selectedDealerId = data.dealerId;
+            selectedProductId = data.productId;
+
             $("#edit_dealerSearch").val(data.dealerName);
             $("#edit_productSearch").val(data.productName);
             $("#edit_orderDate").val(data.orderDate ? data.orderDate.split('T')[0] : '');
             $("#edit_quantity").val(data.quantity);
-            $("#edit_giftQuantity").val(data.giftQuantity);
+            $("#edit_giftQuantity").val(data.giftQuantity || 0);
             $("#edit_price").val(data.price);
-            $("#edit_expectRate").val(data.expectRate);
-            $("#edit_realRate").val(data.realRate);
+            $("#edit_expectRate").val(data.expectRate || 0);
+            $("#edit_realRate").val(data.realRate || 0);
+
             calcEditAll();
             $("#editModal").fadeIn();
         });
     });
 
-    // ---------- 编辑页 - 经销商搜索 ----------
-    $(document).on("input", "#edit_dealerSearch", function () {
-        searchDealer("edit"); // 区分新增/编辑
-    });
-    $(document).on("blur", "#edit_dealerSearch", function () {
-        setTimeout(() => $("#edit_dealerPanel").hide(), 200);
-    });
-
-// ---------- 编辑页 - 产品搜索 ----------
-    $(document).on("input", "#edit_productSearch", function () {
-        searchProduct("edit");
-    });
-    $(document).on("blur", "#edit_productSearch", function () {
-        setTimeout(() => $("#edit_productPanel").hide(), 200);
-    });
-
-    // 编辑提交
+    // 编辑提交（修复 productName 取值错误）
     $("#editForm").submit(function (e) {
         e.preventDefault();
         let formData = {
@@ -158,7 +184,7 @@ function bindEvents() {
             dealerId: $("#edit_dealerId").val(),
             productId: $("#edit_productId").val(),
             orderDate: $("#edit_orderDate").val(),
-            productName: $("#edit_productName").val(),
+            productName: $("#edit_productSearch").val(),
             quantity: $("#edit_quantity").val(),
             giftQuantity: $("#edit_giftQuantity").val(),
             price: $("#edit_price").val(),
@@ -210,7 +236,96 @@ function bindEvents() {
     });
 }
 
-// 编辑页自动计算
+// 经销商搜索（统一新增/编辑）
+function searchDealer(mode = "add") {
+    let key = mode === "add" ? $("#dealerSearch").val().toLowerCase().trim() : $("#edit_dealerSearch").val().toLowerCase().trim();
+    let panel = mode === "add" ? $("#dealerPanel") : $("#edit_dealerPanel");
+    panel.empty().show();
+
+    if (allDealers.length === 0) {
+        panel.append('<div class="dealer-item">暂无经销商</div>');
+        return;
+    }
+    let list = allDealers.filter(item => item.dealerName?.toLowerCase().includes(key));
+    if (list.length === 0) {
+        panel.append('<div class="dealer-item">未找到匹配</div>');
+    } else {
+        list.forEach(item => {
+            panel.append(`<div class="dealer-item" onclick="selectDealer(${item.id},'${item.dealerName}','${mode}')">${item.dealerName}</div>`);
+    });
+    }
+}
+
+// 选中经销商（同步全局变量 + 赋值隐藏域）
+function selectDealer(id, name, mode = "add") {
+    selectedDealerId = id;
+    if (mode === "add") {
+        $("#dealerSearch").val(name);
+        $("#dealerId").val(id);
+        $("#dealerPanel").hide();
+    } else {
+        $("#edit_dealerSearch").val(name);
+        $("#edit_dealerId").val(id);
+        $("#edit_dealerPanel").hide();
+    }
+}
+
+// 产品搜索（区分新增/编辑）
+function searchProduct(mode = "add") {
+    let key = mode === "add" ? $("#productSearch").val().toLowerCase().trim() : $("#edit_productSearch").val().toLowerCase().trim();
+    let panel = mode === "add" ? $("#productPanel") : $("#edit_productPanel");
+    panel.empty().show();
+
+    if (allProducts.length === 0) {
+        panel.append('<div class="product-item">暂无产品</div>');
+        return;
+    }
+    let list = allProducts.filter(item => item.productName?.toLowerCase().includes(key));
+    if (list.length === 0) {
+        panel.append('<div class="product-item">未找到匹配</div>');
+    } else {
+        list.forEach(item => {
+            panel.append(`<div class="product-item" onclick="selectProduct(${item.id},'${item.productName}', ${item.price}, '${mode}')">${item.productName}</div>`);
+    });
+    }
+}
+
+// 选中产品（新增 + 编辑 通用，回填单价并计算金额）
+function selectProduct(id, name, price, mode = "add") {
+    selectedProductId = id;
+    if (mode === "add") {
+        $("#productSearch").val(name);
+        $("#productId").val(id);
+        $("#price").val(parseFloat(price).toFixed(2));
+        $("#productPanel").hide();
+        calcAll();
+    } else {
+        $("#edit_productSearch").val(name);
+        $("#edit_productId").val(id);
+        $("#edit_price").val(parseFloat(price).toFixed(2));
+        $("#edit_productPanel").hide();
+        calcEditAll();
+    }
+}
+
+// 新增订单 - 金额计算
+function calcAll() {
+    let qty = Number($("#quantity").val() || 0);
+    let price = Number($("#price").val() || 0);
+    let total = qty * price;
+    $("#totalAmount").val(total.toFixed(2));
+
+    let rate = Number($("#expectRate").val() || 0);
+    $("#marketFee").val((total * rate / 100).toFixed(2));
+    calcBalanceFee();
+}
+function calcBalanceFee() {
+    let market = Number($("#marketFee").val() || 0);
+    let real = Number($("#realRate").val() || 0);
+    $("#balanceFee").val((market * (1 - real / 100)).toFixed(2));
+}
+
+// 编辑订单 - 金额计算
 function calcEditAll() {
     let qty = Number($("#edit_quantity").val() || 0);
     let price = Number($("#edit_price").val() || 0);
@@ -227,104 +342,12 @@ function calcEditBalance() {
     $("#edit_balanceFee").val((market * (1 - real / 100)).toFixed(2));
 }
 
-// 经销商搜索
-// ---------- 编辑页 - 经销商搜索 ----------
-$(document).on("input", "#edit_dealerSearch", function () {
-    searchDealer("edit"); // 区分新增/编辑
-});
-$(document).on("blur", "#edit_dealerSearch", function () {
-    setTimeout(() => $("#edit_dealerPanel").hide(), 200);
-});
-
-// ---------- 编辑页 - 产品搜索 ----------
-$(document).on("input", "#edit_productSearch", function () {
-    searchProduct("edit");
-});
-$(document).on("blur", "#edit_productSearch", function () {
-    setTimeout(() => $("#edit_productPanel").hide(), 200);
-});
-// 经销商搜索（支持新增/编辑）
-function searchDealer(mode = "add") {
-    let key = (mode === "add" ? $("#dealerSearch") : $("#edit_dealerSearch")).val().toLowerCase().trim();
-    let panel = mode === "add" ? $("#dealerPanel") : $("#edit_dealerPanel");
-    panel.empty().show();
-    if (allDealers.length === 0) {
-        panel.append('<div class="dealer-item">暂无经销商</div>');
-        return;
-    }
-    let list = allDealers.filter(item => item.dealerName?.toLowerCase().includes(key));
-    if (list.length === 0) {
-        panel.append('<div class="dealer-item">未找到匹配</div>');
-    } else {
-        list.forEach(item => {
-            panel.append(`<div class="dealer-item" onclick="selectDealer(${item.id},'${item.dealerName}','${mode}')">${item.dealerName}</div>`);
-    });
-    }
-}
-function selectDealer(id, name, mode = "add") {
-    if (mode === "add") {
-        $("#dealerSearch").val(name);
-        $("#dealerId").val(id);
-        $("#dealerPanel").hide();
-    } else {
-        $("#edit_dealerSearch").val(name);
-        $("#edit_dealerId").val(id);
-        $("#edit_dealerPanel").hide();
-    }
-}
-// 产品搜索
-function searchProduct() {
-    let key = $("#productSearch").val().toLowerCase().trim();
-    let panel = $("#productPanel").empty();
-    panel.show();
-    if (allProducts.length === 0) {
-        panel.append('<div class="product-item">暂无产品</div>');
-        return;
-    }
-    let list = allProducts.filter(item => item.productName?.toLowerCase().includes(key));
-    if (list.length === 0) {
-        panel.append('<div class="product-item">未找到匹配</div>');
-    } else {
-        list.forEach(item => {
-            panel.append(`<div class="product-item" onclick="selectProduct(${item.id},'${item.productName}', ${item.price})">${item.productName}</div>`);
-    });
-    }
-}
-
-// 选中产品：自动回填单价
-function selectProduct(id, name, price) {
-    selectedProductId = id;
-    $("#productSearch").val(name);
-    $("#productId").val(id);
-    // 自动填充单价
-    $("#price").val(parseFloat(price).toFixed(2));
-    $("#productPanel").hide();
-    // 重新计算金额
-    calcAll();
-}
-
-// 金额计算
-function calcAll() {
-    let qty = Number($("#quantity").val() || 0);
-    let price = Number($("#price").val() || 0);
-    let total = qty * price;
-    $("#totalAmount").val(total.toFixed(2));
-    let rate = Number($("#expectRate").val() || 0);
-    $("#marketFee").val((total * rate / 100).toFixed(2));
-    calcBalanceFee();
-}
-function calcBalanceFee() {
-    let marketFee = Number($("#marketFee").val() || 0);
-    let realRate = Number($("#realRate").val() || 0);
-    $("#balanceFee").val((marketFee * (1 - realRate / 100)).toFixed(2));
-}
-
-// 加载经销商列表
+// 加载经销商
 function loadDealers() {
     $.get("/api/dealer/all", res => allDealers = res);
 }
 
-// 加载产品列表（产品配置接口）
+// 加载产品
 function loadProducts() {
     $.get("/api/productConfig/all", res => allProducts = res);
 }
