@@ -13,6 +13,7 @@
         body {
             background: #f5f7fa;
             padding: 40px;
+            margin-top: 70px; /* 避让固定导航 */
         }
         .container {
             max-width: 1200px;
@@ -114,7 +115,7 @@
             grid-column: 1 / -1;
         }
 
-        /* 联想下拉面板 - 复用原有样式 */
+        /* 联想下拉面板 */
         .select-panel {
             position: absolute;
             left: 150px;
@@ -137,7 +138,7 @@
             background: #eff6ff;
         }
 
-        /* 导航栏 */
+        /* ========== 全局统一导航样式 ========== */
         .navbar {
             background: #fff;
             height: 70px;
@@ -161,6 +162,11 @@
             display: flex;
             gap: 10px;
         }
+        /* 一级菜单容器 */
+        .menu-wrap {
+            position: relative;
+        }
+        /* 一级菜单项 */
         .nav-item {
             padding: 12px 24px;
             border-radius: 8px;
@@ -169,6 +175,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             color: #444;
+            white-space: nowrap;
         }
         .nav-item:hover {
             background: #eff6ff;
@@ -180,17 +187,62 @@
             color: #fff;
             box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
+        /* 二级下拉菜单 */
+        .sub-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            min-width: 180px;
+            padding: 8px 0;
+            display: none;
+            z-index: 1000;
+        }
+        .sub-menu .sub-item {
+            padding: 10px 24px;
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sub-menu .sub-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        /* 悬浮展开下拉 */
+        .menu-wrap:hover .sub-menu {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
+<!-- 顶部导航（一二级下拉菜单，全站统一结构） -->
 <div class="navbar">
     <div class="logo">业务管理系统</div>
     <div class="nav-tabs">
-        <div class="nav-item" data-page="index">首页</div>
-        <div class="nav-item" data-page="dealer">经销商配置管理</div>
-        <div class="nav-item" data-page="order">销售订单管理</div>
-        <div class="nav-item active" data-page="activityConfig">活动配置管理</div>
+        <div class="menu-wrap">
+            <div class="nav-item" data-page="index">首页</div>
+        </div>
+        <!-- 业务操作（当前页面归属此处，高亮一级菜单） -->
+        <div class="menu-wrap">
+            <div class="nav-item active">业务操作</div>
+            <div class="sub-menu">
+                <div class="sub-item" data-page="order">销售订单管理</div>
+                <div class="sub-item" data-page="activity">活动页面</div>
+            </div>
+        </div>
+        <!-- 配置管理 -->
+        <div class="menu-wrap">
+            <div class="nav-item">配置管理</div>
+            <div class="sub-menu">
+                <div class="sub-item" data-page="dealer">经销商配置管理</div>
+                <div class="sub-item" data-page="activityConfig">活动配置管理</div>
+                <div class="sub-item" data-page="productConfig">产品配置管理</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -239,14 +291,12 @@
     <div class="dialog">
         <h3>新增活动</h3>
         <form id="activityForm">
-            <!-- 活动类型 - 模糊搜索 -->
             <div class="form-item form-full">
                 <label>活动类型</label>
                 <input type="text" id="activityTypeSearch" placeholder="搜索活动类型">
                 <div class="select-panel" id="activityTypePanel"></div>
                 <input type="hidden" name="activityTypeId" id="activityTypeId">
             </div>
-            <!-- 经销商 - 模糊搜索 -->
             <div class="form-item form-full">
                 <label>经销商名称</label>
                 <input type="text" id="dealerSearch" placeholder="搜索经销商名称">
@@ -372,6 +422,7 @@
 
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="/js/activity.js"></script>
-<script src="/js/nav.js"></script>
+<!-- 公共导航跳转JS（全站共用） -->
+<script src="/js/index.js"></script>
 </body>
 </html>

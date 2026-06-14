@@ -115,7 +115,7 @@
             grid-column: 1 / -1;
         }
 
-        /* 导航栏 */
+        /* ========== 全站统一导航样式 ========== */
         .navbar {
             background: #fff;
             height: 70px;
@@ -139,6 +139,9 @@
             display: flex;
             gap: 10px;
         }
+        .menu-wrap {
+            position: relative;
+        }
         .nav-item {
             padding: 12px 24px;
             border-radius: 8px;
@@ -147,6 +150,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             color: #444;
+            white-space: nowrap;
         }
         .nav-item:hover {
             background: #eff6ff;
@@ -158,20 +162,60 @@
             color: #fff;
             box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
-
+        /* 二级下拉菜单 */
+        .sub-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            min-width: 180px;
+            padding: 8px 0;
+            display: none;
+            z-index: 1000;
+        }
+        .sub-item {
+            padding: 10px 24px;
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sub-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .menu-wrap:hover .sub-menu {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
-<!-- 导航栏 -->
+<!-- 全站统一导航结构 -->
 <div class="navbar">
     <div class="logo">业务管理系统</div>
     <div class="nav-tabs">
-        <div class="nav-item" data-page="index">首页</div>
-        <div class="nav-item" data-page="dealer">经销商配置管理</div>
-        <div class="nav-item" data-page="order">销售订单管理</div>
-        <div class="nav-item" data-page="activityConfig">活动配置管理</div>
-        <div class="nav-item active" data-page="productConfig">产品配置管理</div>
+        <div class="menu-wrap">
+            <div class="nav-item" data-page="index">首页</div>
+        </div>
+        <div class="menu-wrap">
+            <div class="nav-item">业务操作</div>
+            <div class="sub-menu">
+                <div class="sub-item" data-page="order">销售订单管理</div>
+                <div class="sub-item" data-page="activity">活动页面</div>
+            </div>
+        </div>
+        <!-- 当前页面所属：配置管理（一级菜单高亮） -->
+        <div class="menu-wrap">
+            <div class="nav-item active">配置管理</div>
+            <div class="sub-menu">
+                <div class="sub-item" data-page="dealer">经销商配置管理</div>
+                <div class="sub-item" data-page="activityConfig">活动配置管理</div>
+                <div class="sub-item" data-page="productConfig">产品配置管理</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -295,7 +339,9 @@
 </div>
 
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- 原有业务JS不变 -->
 <script src="/js/productConfig.js"></script>
-<script src="/js/nav.js"></script>
+<!-- 全站统一公共跳转JS -->
+<script src="/js/index.js"></script>
 </body>
 </html>
