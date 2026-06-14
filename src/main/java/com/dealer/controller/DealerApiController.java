@@ -43,9 +43,21 @@ public class DealerApiController {
         Boolean isExist = true;
         List<Dealer> result = dealerService.getDealerInfo(dealer);
         if(result.size() > 0){
-            isExist = true;
+            if(null != dealer.getId() && null != dealer.getDealerName()){
+                if(dealer.getDealerName().equals(result.get(0).getDealerName())){
+                    isExist = false;
+                }
+            }
         }else {
-            isExist = false;
+            Dealer dealer1 = new Dealer();
+            dealer1.setDealerName(dealer.getDealerName());
+            List<Dealer> result1 = dealerService.getDealerInfo(dealer1);
+            if(result1.size() > 0){
+                isExist = true;
+            }else {
+                isExist = false;
+            }
+
         }
         return isExist;
     }

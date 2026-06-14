@@ -96,7 +96,7 @@
             display: block;
         }
 
-        /* 原有页面样式不变 */
+        /* 页面主体样式 */
         body {
             background: #f5f7fa;
             padding: 40px;
@@ -141,6 +141,7 @@
         .page-btn { padding:6px 12px; border:1px solid #ddd; border-radius:4px; cursor:pointer; }
         .page-btn.active { background:#2563eb; color:#fff; }
 
+        /* 弹窗通用样式 */
         .mask {
             position: fixed;
             top: 0;
@@ -157,41 +158,39 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: #fff;
-            width: 460px;
+            width: 700px;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        .form-item { margin-bottom:16px; }
+        .form-item { margin: 0 !important; }
         .form-item label { display:block; margin-bottom:6px; }
         .form-item input, .form-item select {
             width: 100%; padding:8px; border:1px solid #ddd; border-radius:6px;
         }
-        .form-btns { text-align:right; margin-top:20px; }
+        .form-btns {
+            grid-column: 1 / -1;
+            text-align: right;
+            margin-top: 5px;
+        }
         .btn-cancel { background:#9ca3af; }
 
-        #addModal .dialog { width: 700px !important; }
-        #addForm {
+        /* 表单网格布局（新增+编辑共用） */
+        #addForm, #editForm {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px 20px;
         }
-        #addForm .form-item { margin: 0 !important; }
-        #addForm .region-group,
-        #addForm .address-group {
+        .region-group,
+        .address-group {
             grid-column: 1 / -1;
             display: flex;
             gap: 8px;
             align-items: center;
         }
-        #addForm .region-group select { flex: 1; }
-        #addForm .form-btns {
-            grid-column: 1 / -1;
-            justify-content: flex-end;
-            margin-top: 5px;
-        }
+        .region-group select { flex: 1; }
 
-        /* 新增：名称重复错误提示样式 */
+        /* 错误提示 */
         .error-tip {
             color: #f53f3f;
             font-size: 12px;
@@ -277,7 +276,6 @@
             <div class="form-item">
                 <label>经销商名称</label>
                 <input type="text" name="dealerName" id="add_dealerName" required>
-                <!-- 错误提示 -->
                 <div class="error-tip" id="add_name_tip">该经销商名称已存在</div>
             </div>
             <div class="form-item">
@@ -316,7 +314,7 @@
     </div>
 </div>
 
-<!-- 编辑弹窗 -->
+<!-- 编辑弹窗（布局、结构、样式 1:1 对齐新增弹窗） -->
 <div class="mask" id="editModal">
     <div class="dialog">
         <h3>编辑经销商</h3>
@@ -325,7 +323,6 @@
             <div class="form-item">
                 <label>经销商名称</label>
                 <input type="text" name="dealerName" id="edit_dealerName" required>
-                <!-- 错误提示 -->
                 <div class="error-tip" id="edit_name_tip">该经销商名称已存在</div>
             </div>
             <div class="form-item">
@@ -337,30 +334,24 @@
                 <input type="text" name="dealerPhone" id="edit_dealerPhone" required>
             </div>
             <div class="form-item">
-                <label>省份</label>
+                <label>销售人员</label>
+                <input type="text" name="seller" id="edit_seller" required>
+            </div>
+            <div class="form-item region-group">
+                <label>省市区</label>
                 <select id="editProvince" name="provinceCode" onchange="loadEditCities()">
                     <option value="">请选择省份</option>
                 </select>
-            </div>
-            <div class="form-item">
-                <label>城市</label>
                 <select id="editCity" name="cityCode" onchange="loadEditAreas()">
                     <option value="">请选择城市</option>
                 </select>
-            </div>
-            <div class="form-item">
-                <label>区县</label>
                 <select id="editArea" name="areaCode">
                     <option value="">请选择区县</option>
                 </select>
             </div>
-            <div class="form-item">
-                <label>经销商地址</label>
+            <div class="form-item address-group">
+                <label>详细地址</label>
                 <input type="text" name="dealerAddress" id="edit_dealerAddress" required>
-            </div>
-            <div class="form-item">
-                <label>销售人员</label>
-                <input type="text" name="seller" id="edit_seller" required>
             </div>
             <div class="form-btns">
                 <button type="button" class="btn btn-cancel" id="closeEditModal">取消</button>
@@ -373,7 +364,6 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="/js/dealer.js"></script>
 <script src="/js/region.js"></script>
-<!-- 引入导航跳转JS -->
 <script src="/js/index.js"></script>
 
 </body>
