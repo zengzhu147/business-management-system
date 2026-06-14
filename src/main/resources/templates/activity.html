@@ -47,6 +47,7 @@
         .btn-edit { background: #f59e0b; padding: 4px 10px;font-size:12px; }
         .btn-del { background: #ef4444; padding: 4px 10px;font-size:12px; }
         .btn-view { background: #10b981; padding: 4px 10px;font-size:12px; }
+        .btn-writeoff { background: #7c3aed; padding: 4px 10px;font-size:12px; }
         table { width:100%; border-collapse: collapse; }
         th { background:#f9fafb; padding:12px; text-align:left; }
         td { padding:12px; border-top:1px solid #eee; }
@@ -106,7 +107,7 @@
         }
         .btn-cancel { background:#9ca3af; }
 
-        #activityForm, #editActivityForm {
+        #activityForm, #editActivityForm, #writeOffForm {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px 22px;
@@ -136,6 +137,23 @@
         }
         .select-item:hover {
             background: #eff6ff;
+        }
+
+        /* 展开/收起按钮 */
+        .expand-btn {
+            cursor: pointer;
+            color: #2563eb;
+            font-size: 18px;
+            border: none;
+            background: transparent;
+        }
+        /* 核销明细行样式 */
+        .writeoff-row {
+            background: #f8fafc;
+        }
+        .writeoff-row td {
+            padding: 8px 12px;
+            font-size: 14px;
         }
 
         /* ========== 全局统一导航样式 ========== */
@@ -263,14 +281,15 @@
     <table>
         <thead>
         <tr>
-            <th>序号</th>
+            <th width="60">展开</th>
+            <th width="60">序号</th>
             <th>活动时间</th>
             <th>活动类型</th>
             <th>经销商名称</th>
             <th>活动内容</th>
             <th>申请费用(元)</th>
             <th>核销情况</th>
-            <th>操作</th>
+            <th width="220">操作</th>
         </tr>
         </thead>
         <tbody id="activityTable"></tbody>
@@ -417,6 +436,50 @@
                 <button class="btn btn-cancel">关闭</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- 新增核销弹窗 -->
+<div class="mask" id="writeOffModal">
+    <div class="dialog">
+        <h3>新增核销</h3>
+        <form id="writeOffForm">
+            <!-- 绑定所属活动ID -->
+            <input type="hidden" name="activityId" id="writeOff_activityId">
+
+            <div class="form-item">
+                <label>核销时间</label>
+                <input type="date" name="writeOffTime" required>
+            </div>
+            <div class="form-item">
+                <label>经销商名称</label>
+                <input type="text" id="writeOff_dealerName" readonly>
+                <input type="hidden" name="dealerId" id="writeOff_dealerId">
+            </div>
+            <div class="form-item">
+                <label>产品名称</label>
+                <input type="text" id="writeOff_productSearch" placeholder="搜索产品名称">
+                <div class="select-panel" id="writeOff_productPanel"></div>
+                <input type="hidden" name="productId" id="writeOff_productId">
+            </div>
+            <div class="form-item">
+                <label>数量</label>
+                <input type="number" min="1" name="num" id="writeOff_num" required>
+            </div>
+            <div class="form-item">
+                <label>核销单价(元)</label>
+                <input step="0.01" type="number" min="0" name="writeOffPrice" id="writeOff_price" required>
+            </div>
+            <div class="form-item">
+                <label>核销费用(元)</label>
+                <input step="0.01" type="number" name="writeOffTotal" id="writeOff_total" readonly>
+            </div>
+
+            <div class="form-btns">
+                <button type="button" class="btn btn-cancel">取消</button>
+                <button type="submit" class="btn btn-add">提交核销</button>
+            </div>
+        </form>
     </div>
 </div>
 

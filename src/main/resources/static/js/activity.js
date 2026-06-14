@@ -6,21 +6,24 @@ let totalPage = 1;
 // 数据源
 let allDealers = [];
 let allActivityType = [];
+let allProducts = [];
 
 // 选中ID
 let selectedDealerId = null;
 let selectedActivityTypeId = null;
+let selectedProductId = null;
 
 $(function () {
     loadActivityList();
     loadDealers();
     loadActivityType();
+    loadProducts();
     bindEvents();
 });
 
 // 绑定所有事件
 function bindEvents() {
-    // 打开新增弹窗
+    // 打开新增活动弹窗
     $("#openAddActivity").click(function () {
         $("#activityForm")[0].reset();
         selectedDealerId = null;
@@ -31,10 +34,10 @@ function bindEvents() {
         $("#addModal").fadeIn();
     });
 
-    // 关闭弹窗
+    // 关闭所有弹窗 + 隐藏下拉面板
     $(".btn-cancel").click(function () {
         $(".mask").fadeOut();
-        $("#dealerPanel, #activityTypePanel").hide();
+        $("#dealerPanel, #activityTypePanel, #writeOff_productPanel").hide();
     });
 
     // ========== 1. 活动类型 模糊搜索 ==========
@@ -46,11 +49,11 @@ function bindEvents() {
     $(document).on("blur", "#activityTypeSearch", function () {
         setTimeout(() => {
             if (!selectedActivityTypeId) {
-                $("#activityTypeSearch").val("");
-                $("#activityTypeId").val("");
-            }
-            $("#activityTypePanel").hide();
-        }, 200);
+            $("#activityTypeSearch").val("");
+            $("#activityTypeId").val("");
+        }
+        $("#activityTypePanel").hide();
+    }, 200);
     });
 
     // ========== 2. 经销商 模糊搜索 ==========
@@ -62,24 +65,40 @@ function bindEvents() {
     $(document).on("blur", "#dealerSearch", function () {
         setTimeout(() => {
             if (!selectedDealerId) {
-                $("#dealerSearch").val("");
-                $("#dealerId").val("");
-            }
-            $("#dealerPanel").hide();
-        }, 200);
+            $("#dealerSearch").val("");
+            $("#dealerId").val("");
+        }
+        $("#dealerPanel").hide();
+    }, 200);
     });
 
-    // 点击页面空白处关闭下拉面板
+    // ========== 3. 核销弹窗 - 产品搜索 ==========
+    $(document).on("input", "#writeOff_productSearch", function () {
+        selectedProductId = null;
+        $("#writeOff_productId").val("");
+        searchProduct();
+    });
+    $(document).on("blur", "#writeOff_productSearch", function () {
+        setTimeout(() => {
+            if (!selectedProductId) {
+            $("#writeOff_productSearch").val("");
+            $("#writeOff_productId").val("");
+        }
+        $("#writeOff_productPanel").hide();
+    }, 200);
+    });
+
+    // 点击空白关闭所有下拉面板
     $(document).click(function (e) {
-        if (!$(e.target).closest("#dealerSearch, #dealerPanel").length) {
-            $("#dealerPanel").hide();
-        }
-        if (!$(e.target).closest("#activityTypeSearch, #activityTypePanel").length) {
-            $("#activityTypePanel").hide();
-        }
+        if (!$(e.target).closest("#dealerSearch, #dealerPanel").length) $("#dealerPanel").hide();
+        if (!$(e.target).closest("#activityTypeSearch, #activityTypePanel").length) $("#activityTypePanel").hide();
+        if (!$(e.target).closest("#writeOff_productSearch, #writeOff_productPanel").length) $("#writeOff_productPanel").hide();
     });
 
-    // ========== 新增提交 ==========
+    // ========== 核销费用自动计算：数量 / 单价变化时计算 ==========
+    $(document).on("input", "#writeOff_num, #writeOff_price", calcWriteOffTotal);
+
+    // ========== 新增活动提交 ==========
     $("#activityForm").submit(function (e) {
         e.preventDefault();
         let formData = {
@@ -90,7 +109,6 @@ function bindEvents() {
             writeOffStatus: $("select[name=writeOffStatus]").val(),
             activityContent: $("textarea[name=activityContent]").val()
         };
-
         $.ajax({
             url: "/api/activity/add",
             type: "POST",
@@ -105,11 +123,10 @@ function bindEvents() {
         });
     });
 
-    // ========== 打开编辑弹窗 ==========
+    // ========== 打开编辑活动弹窗 ==========
     $(document).on("click", ".edit-btn", function () {
         let tr = $(this).closest("tr");
         let id = tr.find(".data-id").text();
-
         $.get("/api/activity/getActivityInfo", { id }, function (dataList) {
             var data = dataList[0];
             $("#edit_id").val(data.id);
@@ -121,12 +138,11 @@ function bindEvents() {
             $("#edit_applyFee").val(data.applyFee);
             $("#edit_writeOffStatus").val(data.writeOffStatus);
             $("#edit_activityContent").val(data.activityContent);
-
             $("#editModal").fadeIn();
         });
     });
 
-    // ========== 编辑提交 ==========
+    // ========== 编辑活动提交 ==========
     $("#editActivityForm").submit(function (e) {
         e.preventDefault();
         let formData = {
@@ -138,14 +154,13 @@ function bindEvents() {
             writeOffStatus: $("#edit_writeOffStatus").val(),
             activityContent: $("#edit_activityContent").val()
         };
-
         $.post("/api/activity/update", formData, function () {
             alert("修改成功！");
             location.reload();
         });
     });
 
-    // ========== 删除 ==========
+    // ========== 删除活动 ==========
     $(document).on("click", ".del-btn", function () {
         let id = $(this).closest("tr").find(".data-id").text();
         if (confirm("确定删除该活动？")) {
@@ -155,29 +170,87 @@ function bindEvents() {
         }
     });
 
-    // ========== 打开详情 ==========
+    // ========== 打开活动详情 ==========
     $(document).on("click", ".view-btn", function () {
         let id = $(this).closest("tr").find(".data-id").text();
         openDetail(id);
     });
 
+    // ========== 打开新增核销弹窗 ==========
+    $(document).on("click", ".writeoff-btn", function () {
+        let tr = $(this).closest("tr");
+        let activityId = tr.find(".data-id").text();
+        let dealerName = tr.find("td:nth-child(5)").text();
+        let dealerId = tr.data("dealerid");
+
+        // 重置表单 + 回填所属活动、经销商
+        $("#writeOffForm")[0].reset();
+        selectedProductId = null;
+        $("#writeOff_activityId").val(activityId);
+        $("#writeOff_dealerId").val(dealerId);
+        $("#writeOff_dealerName").val(dealerName);
+        $("#writeOff_productSearch").val("");
+        $("#writeOff_productId").val("");
+        $("#writeOff_total").val("");
+        $("#writeOffModal").fadeIn();
+    });
+
+    // ========== 核销提交 ==========
+    $("#writeOffForm").submit(function (e) {
+        e.preventDefault();
+        let formData = {
+            activityId: $("#writeOff_activityId").val(),
+            dealerId: $("#writeOff_dealerId").val(),
+            productId: $("#writeOff_productId").val(),
+            writeOffTime: $("input[name=writeOffTime]").val(),
+            num: $("#writeOff_num").val(),
+            writeOffPrice: $("#writeOff_price").val(),
+            writeOffTotal: $("#writeOff_total").val()
+        };
+        $.post("/api/activityWriteOff/add", formData, function () {
+            alert("核销提交成功！");
+            $(".mask").fadeOut();
+            loadActivityList();
+        }, function () {
+            alert("核销提交失败！");
+        });
+    });
+
+    // ========== 展开/收起核销列表（修复按钮状态切换） ==========
+    $(document).on("click", ".expand-btn", function () {
+        let $btn = $(this);
+        let $currTr = $btn.closest("tr");
+        let activityId = $currTr.find(".data-id").text();
+        let $nextTr = $currTr.next(".writeoff-wrap");
+
+        if ($nextTr.length > 0) {
+            // 存在核销行 → 收起，按钮变回 +
+            $nextTr.remove();
+            $btn.text("+");
+        } else {
+            // 无核销行 → 展开，按钮变为 -
+            $btn.text("-");
+            loadWriteOffList(activityId, $currTr);
+        }
+    });
+
     // ========== 分页事件 ==========
     $("#first").click(() => {
         currentPage = 1;
-        loadActivityList();
-    });
+    loadActivityList();
+});
     $("#prev").click(() => {
         if (currentPage > 1) currentPage--;
-        loadActivityList();
-    });
+    loadActivityList();
+});
     $("#next").click(() => {
         if (currentPage < totalPage) currentPage++;
-        loadActivityList();
-    });
+    loadActivityList();
+});
     $("#last").click(() => {
         currentPage = totalPage;
-        loadActivityList();
-    });
+    loadActivityList();
+});
 
     // 每页条数切换
     $("#pageSizeSelect").change(function () {
@@ -187,12 +260,44 @@ function bindEvents() {
     });
 }
 
+// 自动计算核销费用
+function calcWriteOffTotal() {
+    let num = Number($("#writeOff_num").val() || 0);
+    let price = Number($("#writeOff_price").val() || 0);
+    let total = num * price;
+    $("#writeOff_total").val(total.toFixed(2));
+}
+
+// ========== 产品搜索 ==========
+function searchProduct() {
+    let key = $("#writeOff_productSearch").val().toLowerCase().trim();
+    let panel = $("#writeOff_productPanel").empty().show();
+    if (allProducts.length === 0) {
+        panel.append('<div class="select-item">暂无产品</div>');
+        return;
+    }
+    let list = allProducts.filter(item => item.productName?.toLowerCase().includes(key));
+    if (list.length === 0) {
+        panel.append('<div class="select-item">未找到匹配</div>');
+    } else {
+        list.forEach(item => {
+            panel.append(`<div class="select-item" onclick="selectProduct(${item.id},'${item.productName}')">${item.productName}</div>`);
+    });
+    }
+}
+// 选中产品
+function selectProduct(id, name) {
+    selectedProductId = id;
+    $("#writeOff_productSearch").val(name);
+    $("#writeOff_productId").val(id);
+    $("#writeOff_productPanel").hide();
+}
+
 // ========== 活动类型 搜索 ==========
 function searchActivityType() {
     let key = $("#activityTypeSearch").val().toLowerCase().trim();
     let panel = $("#activityTypePanel").empty();
     panel.show();
-
     if (allActivityType.length === 0) {
         panel.append('<div class="select-item">暂无活动类型</div>');
         return;
@@ -203,10 +308,9 @@ function searchActivityType() {
     } else {
         list.forEach(item => {
             panel.append(`<div class="select-item" onclick="selectActivityType(${item.id},'${item.activityType}')">${item.activityType}</div>`);
-        });
+    });
     }
 }
-
 // 选中活动类型
 function selectActivityType(id, name) {
     selectedActivityTypeId = id;
@@ -220,7 +324,6 @@ function searchDealer() {
     let key = $("#dealerSearch").val().toLowerCase().trim();
     let panel = $("#dealerPanel").empty();
     panel.show();
-
     if (allDealers.length === 0) {
         panel.append('<div class="select-item">暂无经销商</div>');
         return;
@@ -231,10 +334,9 @@ function searchDealer() {
     } else {
         list.forEach(item => {
             panel.append(`<div class="select-item" onclick="selectDealer(${item.id},'${item.dealerName}')">${item.dealerName}</div>`);
-        });
+    });
     }
 }
-
 // 选中经销商
 function selectDealer(id, name) {
     selectedDealerId = id;
@@ -247,20 +349,24 @@ function selectDealer(id, name) {
 function loadDealers() {
     $.get("/api/dealer/all", res => allDealers = res);
 }
-
-// 加载所有活动类型（从活动配置接口获取）
+// 加载所有活动类型
 function loadActivityType() {
     $.get("/api/activityConfig/all", res => allActivityType = res);
+}
+// 加载所有产品
+function loadProducts() {
+    $.get("/api/productConfig/all", res => allProducts = res);
 }
 
 // 加载活动列表
 function loadActivityList() {
     $.get("/api/activity/list", { pageNum: currentPage, pageSize: pageSize }, res => {
         let html = "";
-        res.list.forEach((item, index) => {
-            html += `
-            <tr>
+    res.list.forEach((item, index) => {
+        html += `
+            <tr data-dealerid="${item.dealerId}">
                 <td class="data-id" style="display:none">${item.id}</td>
+                <td><button class="expand-btn">+</button></td>
                 <td>${index + 1}</td>
                 <td>${item.activityTime ? new Date(item.activityTime).toISOString().split('T')[0] : ''}</td>
                 <td>${item.activityType}</td>
@@ -271,25 +377,68 @@ function loadActivityList() {
                 <td>
                     <button class="btn btn-edit edit-btn">编辑</button>
                     <button class="btn btn-del del-btn">删除</button>
+                    <button class="btn btn-writeoff writeoff-btn">新增核销</button>
                 </td>
             </tr>`;
-        });
-        $("#activityTable").html(html);
-        $("#total").text(res.total);
-        totalPage = res.pages;
-        $("#pageInfo").text("第 " + currentPage + " / " + totalPage + " 页");
-    });
+});
+    $("#activityTable").html(html);
+    $("#total").text(res.total);
+    totalPage = res.pages;
+    $("#pageInfo").text("第 " + currentPage + " / " + totalPage + " 页");
+});
 }
 
-// 打开详情弹窗
+// 加载当前活动对应的核销明细
+function loadWriteOffList(activityId, $tr) {
+    $.get("/api/activityWriteOff/listByActivity", { activityId: activityId }, res => {
+        let writeHtml = `
+        <tr class="writeoff-wrap">
+            <td colspan="9" style="padding:0;">
+                <table style="width:100%;border:none;">
+                    <thead>
+                        <tr style="background:#e2e8f0;">
+                            <th width="15%">核销时间</th>
+                            <th width="20%">经销商名称</th>
+                            <th width="20%">产品名称</th>
+                            <th width="10%">数量</th>
+                            <th width="15%">核销单价</th>
+                            <th width="20%">核销费用</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+    if (res.list && res.list.length > 0) {
+        res.list.forEach(item => {
+            writeHtml += `
+                <tr class="writeoff-row">
+                    <td>${item.writeOffTime ? item.writeOffTime.split('T')[0] : ''}</td>
+                    <td>${item.dealerName}</td>
+                    <td>${item.productName}</td>
+                    <td>${item.num}</td>
+                    <td>${item.writeOffPrice}</td>
+                    <td>${item.writeOffTotal}</td>
+                </tr>`;
+    });
+    } else {
+        writeHtml += `<tr class="writeoff-row"><td colspan="6" style="text-align:center;">暂无核销数据</td></tr>`;
+    }
+    writeHtml += `
+                    </tbody>
+                </table>
+            </td>
+        </tr>`;
+    $tr.after(writeHtml);
+});
+}
+
+// 打开活动详情弹窗
 function openDetail(id) {
     $.get("/api/activity/getById", { id }, data => {
         $("#detail_activityType").val(data.activityType);
-        $("#detail_dealerName").val(data.dealerName);
-        $("#detail_activityTime").val(data.activityTime ? new Date(data.activityTime).toISOString().split('T')[0] : '');
-        $("#detail_applyFee").val(data.applyFee);
-        $("#detail_writeOffStatus").val(data.writeOffStatus);
-        $("#detail_activityContent").val(data.activityContent);
-        $("#detailModal").fadeIn();
-    });
+    $("#detail_dealerName").val(data.dealerName);
+    $("#detail_activityTime").val(data.activityTime ? new Date(data.activityTime).split('T')[0] : '');
+    $("#detail_applyFee").val(data.applyFee);
+    $("#detail_writeOffStatus").val(data.writeOffStatus === 'Y' ? '是' : '否');
+    $("#detail_activityContent").val(data.activityContent);
+    $("#detailModal").fadeIn();
+});
 }
