@@ -12,6 +12,8 @@ public interface DealerDao {
 
     List<Dealer> getAllDealer();
 
+    List<Dealer> getDealerInfo(Dealer dealer);
+
     void insert(Dealer dealer);
 
     void update(Dealer dealer);

@@ -190,6 +190,14 @@
             justify-content: flex-end;
             margin-top: 5px;
         }
+
+        /* 新增：名称重复错误提示样式 */
+        .error-tip {
+            color: #f53f3f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -268,7 +276,9 @@
         <form id="addForm">
             <div class="form-item">
                 <label>经销商名称</label>
-                <input type="text" name="dealerName" required>
+                <input type="text" name="dealerName" id="add_dealerName" required>
+                <!-- 错误提示 -->
+                <div class="error-tip" id="add_name_tip">该经销商名称已存在</div>
             </div>
             <div class="form-item">
                 <label>经销商负责人</label>
@@ -315,6 +325,8 @@
             <div class="form-item">
                 <label>经销商名称</label>
                 <input type="text" name="dealerName" id="edit_dealerName" required>
+                <!-- 错误提示 -->
+                <div class="error-tip" id="edit_name_tip">该经销商名称已存在</div>
             </div>
             <div class="form-item">
                 <label>经销商负责人</label>

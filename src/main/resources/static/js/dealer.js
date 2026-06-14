@@ -1,21 +1,54 @@
 let currentPage = 1;
 let pageSize = 10;
 let totalPage = 1;
+// 标记名称是否合法
+let addNameValid = true;
+let editNameValid = true;
 
 $(function () {
     loadDealerList();
     loadProvinces();
 
-    // 新增弹窗
+    // 新增弹窗打开/关闭
     $("#openAdd").click(function () {
         $("#addModal").fadeIn();
+        // 重置校验状态
+        addNameValid = true;
+        $("#add_name_tip").hide();
     });
     $("#closeModal").click(function () {
         $("#addModal").fadeOut();
         $("#addForm")[0].reset();
+        $("#add_name_tip").hide();
+        addNameValid = true;
     });
+
+    // 新增名称失焦校验
+    $("#add_dealerName").blur(function () {
+        let name = $.trim($(this).val());
+        if (!name) {
+            $("#add_name_tip").hide();
+            addNameValid = true;
+            return;
+        }
+        checkDealerName(name, null, function (isExist) {
+            if (isExist) {
+                $("#add_name_tip").show();
+                addNameValid = false;
+            } else {
+                $("#add_name_tip").hide();
+                addNameValid = true;
+            }
+        });
+    });
+
+    // 新增表单提交
     $("#addForm").submit(function (e) {
         e.preventDefault();
+        if (!addNameValid) {
+            alert("经销商名称已存在，请修改！");
+            return;
+        }
         $.post("/api/dealer/add", $(this).serialize(), function () {
             location.reload();
         });
@@ -24,7 +57,6 @@ $(function () {
     // ====================== 编辑弹窗 ======================
     $(document).on("click", ".edit-btn", function () {
         let tr = $(this).closest("tr");
-
         let id = tr.find(".data-id").text();
         let dealerName = tr.find(".data-dealerName").text();
         let dealerLeader = tr.find(".data-dealerLeader").text();
@@ -43,6 +75,10 @@ $(function () {
         $("#edit_dealerAddress").val(dealerAddress);
         $("#edit_seller").val(seller);
 
+        // 重置编辑校验
+        editNameValid = true;
+        $("#edit_name_tip").hide();
+
         // 回显省市区
         loadEditProvinces(function () {
             $("#editProvince").val(provinceCode);
@@ -53,16 +89,43 @@ $(function () {
                 });
             });
         });
-
         $("#editModal").fadeIn();
     });
 
     $("#closeEditModal").click(function () {
         $("#editModal").fadeOut();
+        $("#edit_name_tip").hide();
+        editNameValid = true;
     });
 
+    // 编辑名称失焦校验
+    $("#edit_dealerName").blur(function () {
+        let name = $.trim($(this).val());
+        let id = $("#edit_id").val();
+        if (!name) {
+            $("#edit_name_tip").hide();
+            editNameValid = true;
+            return;
+        }
+        // 编辑传当前ID，排除自身
+        checkDealerName(name, id, function (isExist) {
+            if (isExist) {
+                $("#edit_name_tip").show();
+                editNameValid = false;
+            } else {
+                $("#edit_name_tip").hide();
+                editNameValid = true;
+            }
+        });
+    });
+
+    // 编辑表单提交
     $("#editForm").submit(function (e) {
         e.preventDefault();
+        if (!editNameValid) {
+            alert("经销商名称已存在，请修改！");
+            return;
+        }
         $.post("/api/dealer/update", $(this).serialize(), function () {
             location.reload();
         });
@@ -79,7 +142,6 @@ $(function () {
     });
 
     // 分页
-    // 分页
     $("#first").click(() => {
         currentPage = 1;
     loadDealerList();
@@ -95,6 +157,7 @@ $(function () {
     $("#last").click(() => {
         currentPage = totalPage;
     loadDealerList();
+    loadDealerList();
 });
     $("#pageSizeSelect").change(function () {
         pageSize = $(this).val();
@@ -103,14 +166,27 @@ $(function () {
     });
 });
 
+// ====================== 【核心】经销商名称重复校验接口 ======================
+/**
+ * @param name 待校验名称
+ * @param excludeId 编辑时排除当前ID（新增传null/空）
+ * @param callback 回调：true=已存在，false=可用
+ */
+function checkDealerName(name, excludeId, callback) {
+    let params = { dealerName: name };
+    if (excludeId) {
+        params.id = excludeId;
+    }
+    $.get("/api/dealer/checkName", params, function (res) {
+        callback(res);
+    });
+}
+
 // ====================== 列表加载 ======================
-// ====================== 列表加载（完全修复分页） ======================
 function loadDealerList() {
     $.get("/api/dealer/list", { pageNum: currentPage, pageSize: pageSize }, function (res) {
         let html = "";
-
         if (Array.isArray(res)) {
-            // 直接返回数组的情况（不分页）
             res.forEach(item => {
                 html += `
                 <tr>
@@ -134,10 +210,9 @@ function loadDealerList() {
         });
             $("#dealerTable").html(html);
             $("#total").text(res.length);
-            totalPage = 1; // 数组全部返回，只有1页
+            totalPage = 1;
             $("#pageInfo").text("第 " + currentPage + " 页");
         } else {
-            // 分页对象（正确情况：有 list, total, pages）
             res.list.forEach(item => {
                 html += `
                 <tr>
@@ -160,12 +235,8 @@ function loadDealerList() {
                 </tr>`;
         });
             $("#dealerTable").html(html);
-
-            // ======================================
-            // 🔥 核心修复：必须先赋值 totalPage！
-            // ======================================
             $("#total").text(res.total);
-            totalPage = res.pages; // 🔥 必须放在最前面
+            totalPage = res.pages;
             $("#pageInfo").text("第 " + currentPage + " / " + totalPage + " 页");
         }
     });
@@ -201,7 +272,7 @@ function loadAreas() {
     });
 }
 
-// ====================== 编辑：省市区（必须写在外面） ======================
+// ====================== 编辑：省市区 ======================
 function loadEditProvinces(callback) {
     $.get("/region/provinces", function (res) {
         let sel = $("#editProvince");

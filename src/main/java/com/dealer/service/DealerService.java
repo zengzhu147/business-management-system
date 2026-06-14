@@ -35,6 +35,13 @@ public class DealerService {
         return list;
     }
 
+    public List<Dealer> getDealerInfo(Dealer dealer) {
+        // 查询数据列表
+        List<Dealer> list = dealerDao.getDealerInfo(dealer);
+        return list;
+    }
+
+
 
 
     public void insert(Dealer dealer){

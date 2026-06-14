@@ -38,6 +38,18 @@ public class DealerApiController {
         return result;
     }
 
+    @GetMapping("/checkName")
+    public Boolean checkName(Dealer dealer) {
+        Boolean isExist = true;
+        List<Dealer> result = dealerService.getDealerInfo(dealer);
+        if(result.size() > 0){
+            isExist = true;
+        }else {
+            isExist = false;
+        }
+        return isExist;
+    }
+
     // 新增接口：接收表单 + 保存 + 刷新列表
     @PostMapping("/add")
     public String add(Dealer dealer) {

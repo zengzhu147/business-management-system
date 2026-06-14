@@ -1,6 +1,7 @@
+-- 1. H2 兼容建表语句（去掉引擎、字符集、行内索引，注释简化）
 CREATE TABLE IF NOT EXISTS dealer (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    dealerName VARCHAR(100),
+    dealerName VARCHAR(100) NOT NULL,
     dealerLeader VARCHAR(50),
     provinceCode VARCHAR(50),
     cityCode VARCHAR(50),
@@ -9,6 +10,9 @@ CREATE TABLE IF NOT EXISTS dealer (
     dealerAddress VARCHAR(200),
     seller VARCHAR(50)
 );
+
+-- 2. 单独添加唯一索引（实现经销商名称不重复）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_dealer_name ON dealer(dealerName);
 
 CREATE TABLE IF NOT EXISTS sale_order (
     id INT AUTO_INCREMENT PRIMARY KEY,

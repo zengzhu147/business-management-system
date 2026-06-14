@@ -34,6 +34,34 @@
         SELECT * FROM dealer
     </select>
 
+    <select id="getDealerInfo" parameterType="com.dealer.entity.Dealer"
+            resultType="com.dealer.entity.Dealer">
+        SELECT
+        id as id,
+        dealerName as dealerName,
+        dealerLeader as dealerLeader,
+        provinceCode as provinceCode,
+        (select name from region where code = provinceCode) as provinceName,
+        cityCode as cityCode,
+        (select name from region where code = cityCode) as cityName,
+        areaCode as areaCode,
+        (select name from region where code = areaCode) as areaName,
+        dealerPhone as dealerPhone,
+        dealerAddress as dealerAddress,
+        seller as seller
+        FROM dealer
+        <where>
+            1=1
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="dealerName != null and dealerName != ''">
+                AND dealerName = #{dealerName}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
 
     <insert id="insert">
     INSERT INTO dealer
