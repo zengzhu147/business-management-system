@@ -38,6 +38,31 @@ public class ProductConfigApiController {
         return result;
     }
 
+    @GetMapping("/checkProductName")
+    public Boolean checkProductName(ProductConfig productConfig) {
+        List<ProductConfig> result3 = productConfigService.getProductConfigInfo(productConfig);
+        Boolean isExist = true;
+        List<ProductConfig> result = productConfigService.getProductConfigInfo(productConfig);
+        if(result.size() > 0){
+            if(null != productConfig.getId() && null != productConfig.getProductName()){
+                if(productConfig.getProductName().equals(result.get(0).getProductName())){
+                    isExist = false;
+                }
+            }
+        }else {
+            ProductConfig productConfig1 = new ProductConfig();
+            productConfig1.setProductName(productConfig.getProductName());
+            List<ProductConfig> result1 = productConfigService.getProductConfigInfo(productConfig1);
+            if(result1.size() > 0){
+                isExist = true;
+            }else {
+                isExist = false;
+            }
+        }
+        return isExist;
+    }
+
+
     @GetMapping("/all")
     public List<ProductConfig> getAllProductConfigInfo() {
         List<ProductConfig> result = productConfigService.getAllProductConfigInfo();

@@ -115,6 +115,16 @@
             grid-column: 1 / -1;
         }
 
+        /* 重复校验错误提示样式（和其他模块统一） */
+        .error-tip {
+            position: absolute;
+            left: 150px;
+            top: 44px;
+            color: #f53f3f;
+            font-size: 12px;
+            display: none;
+        }
+
         /* ========== 全站统一导航样式 ========== */
         .navbar {
             background: #fff;
@@ -263,7 +273,8 @@
         <form id="productForm">
             <div class="form-item">
                 <label>产品名称</label>
-                <input type="text" name="productName" placeholder="请输入产品名称" required>
+                <input type="text" name="productName" id="add_productName" placeholder="请输入产品名称" required>
+                <div class="error-tip" id="add_name_tip">该产品名称已存在</div>
             </div>
 
             <div class="form-item">
@@ -294,6 +305,7 @@
             <div class="form-item">
                 <label>产品名称</label>
                 <input type="text" name="productName" id="edit_productName" required>
+                <div class="error-tip" id="edit_name_tip">该产品名称已存在</div>
             </div>
 
             <div class="form-item">
@@ -324,7 +336,7 @@
                 <input readonly id="detail_productName">
             </div>
             <div class="form-item">
-                <label>产品单价1</label>
+                <label>产品单价</label>
                 <input readonly id="detail_price">
             </div>
             <div class="form-item form-full">

@@ -45,10 +45,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_activity_type ON activity_config(activityTy
 
 CREATE TABLE IF NOT EXISTS product_config (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    productName VARCHAR(50) COMMENT '产品名称',
+    productName VARCHAR(50) NOT NULL COMMENT '产品名称',
     price DECIMAL(12,2) COMMENT '产品单价',
     comment VARCHAR(100) NULL COMMENT '产品备注'
 );
+-- 2. 单独添加唯一索引（实现产品名称不重复）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_product_name ON product_config(productName);
 
 CREATE TABLE IF NOT EXISTS activity_info (
     id INT AUTO_INCREMENT PRIMARY KEY,
