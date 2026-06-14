@@ -137,6 +137,16 @@
             background: #eff6ff;
         }
 
+        /* 错误提示样式（和经销商页面统一） */
+        .error-tip {
+            position: absolute;
+            left: 150px;
+            top: 44px;
+            color: #f53f3f;
+            font-size: 12px;
+            display: none;
+        }
+
         /* ========== 全站统一导航样式 ========== */
         .navbar {
             background: #fff;
@@ -259,7 +269,6 @@
         <thead>
         <tr>
             <th>序号</th>
-            <th>经销商名称</th>
             <th>活动类型</th>
             <th>活动备注</th>
             <th>操作</th>
@@ -283,16 +292,10 @@
     <div class="dialog">
         <h3>新增活动</h3>
         <form id="activityForm">
-            <div class="form-item form-full">
-                <label>所属经销商</label>
-                <input type="text" id="dealerSearch" placeholder="搜索经销商名称">
-                <div class="dealer-select-panel" id="dealerPanel"></div>
-                <input type="hidden" name="dealerId" id="dealerId">
-            </div>
-
             <div class="form-item">
                 <label>活动类型</label>
-                <input type="text" name="activityType" placeholder="请输入活动类型" required>
+                <input type="text" name="activityType" id="add_activityType" placeholder="请输入活动类型" required>
+                <div class="error-tip" id="add_type_tip">该活动类型已存在</div>
             </div>
 
             <div class="form-item form-full">
@@ -316,15 +319,10 @@
             <input type="hidden" name="id" id="edit_id">
             <input type="hidden" name="dealerId" id="edit_dealerId">
 
-            <div class="form-item form-full">
-                <label>所属经销商</label>
-                <input type="text" id="edit_dealerSearch" placeholder="搜索经销商名称">
-                <div class="dealer-select-panel" id="edit_dealerPanel"></div>
-            </div>
-
             <div class="form-item">
                 <label>活动类型</label>
                 <input type="text" name="activityType" id="edit_activityType" required>
+                <div class="error-tip" id="edit_type_tip">该活动类型已存在</div>
             </div>
 
             <div class="form-item form-full">

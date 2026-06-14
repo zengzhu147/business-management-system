@@ -37,10 +37,11 @@ CREATE TABLE IF NOT EXISTS region (
 
 CREATE TABLE IF NOT EXISTS activity_config (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    dealerId BIGINT COMMENT '经销商ID',
-    activityType VARCHAR(50) COMMENT '活动类型',
+    activityType VARCHAR(50) NOT NULL COMMENT '活动类型',
     activityComment VARCHAR(100) NULL COMMENT '活动备注'
 );
+-- 2. 单独添加唯一索引（实现活动类型不重复）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_activity_type ON activity_config(activityType);
 
 CREATE TABLE IF NOT EXISTS product_config (
     id INT AUTO_INCREMENT PRIMARY KEY,

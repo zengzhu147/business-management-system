@@ -36,6 +36,31 @@ public class ActivityConfigApiController {
         return result;
     }
 
+
+
+    @GetMapping("/checkActivityType")
+    public Boolean checkActivityType(ActivityConfig activityConfig) {
+        Boolean isExist = true;
+        List<ActivityConfig> result = activityConfigService.getActivityConfigInfo(activityConfig);
+        if(result.size() > 0){
+            if(null != activityConfig.getId() && null != activityConfig.getActivityType()){
+                if(activityConfig.getActivityType().equals(result.get(0).getActivityType())){
+                    isExist = false;
+                }
+            }
+        }else {
+            ActivityConfig activityConfig1 = new ActivityConfig();
+            activityConfig1.setActivityType(activityConfig.getActivityType());
+            List<ActivityConfig> result1 = activityConfigService.getActivityConfigInfo(activityConfig1);
+            if(result1.size() > 0){
+                isExist = true;
+            }else {
+                isExist = false;
+            }
+        }
+        return isExist;
+    }
+
     @GetMapping("/all")
     public List<ActivityConfig> getAllActivityConfig() {
         // 1. 查询分页数据

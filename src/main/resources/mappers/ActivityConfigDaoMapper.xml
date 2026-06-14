@@ -8,8 +8,6 @@
             resultType="com.dealer.entity.ActivityConfig">
         SELECT
         id as id,
-        dealerId as dealerId,
-    (select dealerName from dealer where id = dealerId) as dealerName,
     activityType as activityType,
     activityComment as activityComment
         FROM activity_config
@@ -25,8 +23,6 @@
             resultType="com.dealer.entity.ActivityConfig">
         SELECT
         id as id,
-        dealerId as dealerId,
-        (select dealerName from dealer where id = dealerId) as dealerName,
         activityType as activityType,
         activityComment as activityComment
         FROM activity_config
@@ -35,16 +31,10 @@
             <if test="id != null and id != ''">
                 AND id = #{id}
             </if>
-            <!-- 经销商ID -->
-            <if test="dealerId != null and dealerId != ''">
-                AND dealerId
-            </if>
-
             <!-- 产品名称 模糊查询 -->
-            <if test="activityType != null and productName != ''">
+            <if test="activityType != null and activityType != ''">
                 AND activityType = #{activityType}
             </if>
-
         </where>
         ORDER BY id DESC
     </select>
@@ -55,8 +45,6 @@
             resultType="com.dealer.entity.ActivityConfig">
         SELECT
         id as id,
-        dealerId as dealerId,
-        (select dealerName from dealer where id = dealerId) as dealerName,
         activityType as activityType,
         activityComment as activityComment
         FROM activity_config
@@ -64,20 +52,17 @@
 
     <insert id="insert">
     INSERT INTO activity_config
-    (dealerId,
-    activityType,
+    (activityType,
     activityComment
     )
     VALUES(
-    #{dealerId},
     #{activityType},
     #{activityComment}
     )
 </insert>
     <update id="update">
       UPDATE activity_config
-      SET dealerId=#{dealerId},
-      activityType=#{activityType},
+      SET activityType=#{activityType},
       activityComment=#{activityComment}
     WHERE id=#{id}
   </update>
