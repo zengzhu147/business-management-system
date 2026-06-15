@@ -76,6 +76,9 @@ function bindEvents() {
     $(document).on("input", "#writeOff_productSearch", function () {
         selectedProductId = null;
         $("#writeOff_productId").val("");
+        // 清空核销单价
+        $("#writeOff_price").val("");
+        calcWriteOffTotal();
         searchProduct();
     });
     $(document).on("blur", "#writeOff_productSearch", function () {
@@ -83,6 +86,8 @@ function bindEvents() {
             if (!selectedProductId) {
             $("#writeOff_productSearch").val("");
             $("#writeOff_productId").val("");
+            $("#writeOff_price").val("");
+            calcWriteOffTotal();
         }
         $("#writeOff_productPanel").hide();
     }, 200);
@@ -190,6 +195,7 @@ function bindEvents() {
         $("#writeOff_dealerName").val(dealerName);
         $("#writeOff_productSearch").val("");
         $("#writeOff_productId").val("");
+        $("#writeOff_price").val("");
         $("#writeOff_total").val("");
         $("#writeOffModal").fadeIn();
     });
@@ -201,18 +207,24 @@ function bindEvents() {
             activityId: $("#writeOff_activityId").val(),
             dealerId: $("#writeOff_dealerId").val(),
             productId: $("#writeOff_productId").val(),
-            writeOffTime: $("input[name=writeOffTime]").val(),
-            num: $("#writeOff_num").val(),
+            writeOffDate: $("input[name=writeOffTime]").val(),
+            writeOffQuantity: $("#writeOff_num").val(),
             writeOffPrice: $("#writeOff_price").val(),
-            writeOffTotal: $("#writeOff_total").val()
+            writeOffFee: $("#writeOff_total").val()
         };
-        $.post("/api/writeOff/add", formData, function () {
-            alert("核销提交成功！");
-            $(".mask").fadeOut();
-            loadActivityList();
-        }, function () {
-            alert("核销提交失败！");
-        });
+        $.ajax({
+            url: "/api/writeOff/add",
+            type: "POST",
+            data: formData,
+            success: function () {
+                alert("核销提交成功！");
+                $(".mask").fadeOut();
+                loadActivityList();
+            },
+            error: function () {
+                alert("核销提交失败！");
+            }
+    });
     });
 
     // ========== 展开/收起核销列表 ==========
@@ -265,7 +277,7 @@ function calcWriteOffTotal() {
     $("#writeOff_total").val(total.toFixed(2));
 }
 
-// ========== 产品搜索 ==========
+// ========== 产品搜索（传入产品价格到点击事件） ==========
 function searchProduct() {
     let key = $("#writeOff_productSearch").val().toLowerCase().trim();
     let panel = $("#writeOff_productPanel").empty().show();
@@ -278,16 +290,22 @@ function searchProduct() {
         panel.append('<div class="select-item">未找到匹配</div>');
     } else {
         list.forEach(item => {
-            panel.append(`<div class="select-item" onclick="selectProduct(${item.id},'${item.productName}')">${item.productName}</div>`);
+            // 把 item.price 传到 selectProduct 第三个参数
+            panel.append(`<div class="select-item" onclick="selectProduct(${item.id},'${item.productName}',${item.price})">${item.productName}</div>`);
     });
     }
 }
-// 选中产品
-function selectProduct(id, name) {
+
+// 选中产品：自动赋值核销单价并计算总额
+function selectProduct(id, name, price) {
     selectedProductId = id;
     $("#writeOff_productSearch").val(name);
     $("#writeOff_productId").val(id);
+    // 自动填充核销单价
+    $("#writeOff_price").val(parseFloat(price).toFixed(2));
     $("#writeOff_productPanel").hide();
+    // 自动重新计算核销费用
+    calcWriteOffTotal();
 }
 
 // ========== 活动类型 搜索 ==========
@@ -352,6 +370,7 @@ function loadActivityType() {
 }
 // 加载所有产品
 function loadProducts() {
+    // 后端返回产品必须包含 id, productName, price 字段
     $.get("/api/productConfig/all", res => allProducts = res);
 }
 
