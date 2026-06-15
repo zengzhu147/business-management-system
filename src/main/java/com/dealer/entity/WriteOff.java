@@ -1,52 +1,21 @@
-/*
 package com.dealer.entity;
 
-import java.math.BigDecimal;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
 public class WriteOff {
     private Integer id;
+    private Integer activityId; // 活动id
     private Integer dealerId;
-    private String dealerName;
-    private String batchNo;
-    private BigDecimal amount;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date writeOffDate; // 核销日期
+    private Integer productId; // 产品ID
+    private Integer writeOffQuantity; // 核销数量
+    private BigDecimal writeOffPrice; // 核销单价
+    private BigDecimal writeOffFee; // 核销费用
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getDealerId() {
-        return dealerId;
-    }
-
-    public void setDealerId(Integer dealerId) {
-        this.dealerId = dealerId;
-    }
-
-    public String getDealerName() {
-        return dealerName;
-    }
-
-    public void setDealerName(String dealerName) {
-        this.dealerName = dealerName;
-    }
-
-    public String getBatchNo() {
-        return batchNo;
-    }
-
-    public void setBatchNo(String batchNo) {
-        this.batchNo = batchNo;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-}*/
+}

@@ -1,6 +1,6 @@
-/*
 package com.dealer.service;
 
+import com.dealer.common.Page;
 import com.dealer.common.PageResult;
 import com.dealer.dao.WriteOffDao;
 import com.dealer.entity.WriteOff;
@@ -13,30 +13,30 @@ public class WriteOffService {
     @Resource
     private WriteOffDao writeOffDao;
 
-    public PageResult<WriteOff> getPage(String dealerName, Integer pageNum, Integer pageSize) {
-        PageResult<WriteOff> page = new PageResult<>();
-        List<WriteOff> list = writeOffDao.selectPage(dealerName, pageNum, pageSize);
-        Long total = writeOffDao.selectCount(dealerName);
-        page.setList(list);
-        page.setTotal(total);
-        page.setPageNum(pageNum);
-        page.setPageSize(pageSize);
-        return page;
+    public PageResult<WriteOff> page(Page page) {
+        // 查询数据列表
+        List<WriteOff> list = writeOffDao.selectPage(page);
+        // 查询总条数
+        long total = writeOffDao.selectCount();
+        // 封装返回
+        PageResult<WriteOff> result = new PageResult(list,total,page);
+        return result;
     }
 
-    public int save(WriteOff writeOff) {
-        if(writeOff.getId() == null){
-            return writeOffDao.insert(writeOff);
-        }else{
-            return writeOffDao.update(writeOff);
-        }
+    public List<WriteOff> getWriteOffInfo(WriteOff writeOff) {
+        List<WriteOff> result = writeOffDao.getWriteOffInfo(writeOff);
+        return result;
     }
 
-    public int delete(Integer id) {
-        return writeOffDao.deleteById(id);
+    public void insert(WriteOff writeOff ){
+        writeOffDao.insert(writeOff);
     }
 
-    public WriteOff getById(Integer id) {
-        return writeOffDao.selectById(id);
+    public void update(WriteOff writeOff) {
+        writeOffDao.update(writeOff);
     }
-}*/
+
+    public void delete(Long id){
+        writeOffDao.delete(id);
+    }
+}

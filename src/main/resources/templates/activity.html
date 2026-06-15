@@ -143,17 +143,43 @@
         .expand-btn {
             cursor: pointer;
             color: #2563eb;
-            font-size: 18px;
+            font-size: 20px;
             border: none;
             background: transparent;
+            font-weight: bold;
         }
-        /* 核销明细行样式 */
-        .writeoff-row {
-            background: #f8fafc;
+
+        /* ========== 核心层级区分样式 ========== */
+        /* 核销外层包裹行：二级子级容器 */
+        .writeoff-wrap td {
+            padding: 0 !important;
+            background-color: #f8fafc;
+            border-top: 1px dashed #cbd5e1;
+        }
+        /* 左侧缩进+蓝色竖标识条，强从属关系 */
+        .writeoff-inner-box {
+            margin-left: 32px;
+            border-left: 4px solid #2563eb;
+            padding: 12px;
+        }
+        /* 核销明细表格 */
+        .writeoff-table {
+            width: 100%;
+            border: none;
+        }
+        .writeoff-table thead tr {
+            background: #e2e8f0;
+        }
+        .writeoff-table th {
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #334155;
         }
         .writeoff-row td {
-            padding: 8px 12px;
-            font-size: 14px;
+            padding: 7px 10px;
+            font-size: 13px;
+            color: #475569;
+            border-top: 1px solid #e2e8f0;
         }
 
         /* ========== 全局统一导航样式 ========== */
@@ -180,11 +206,9 @@
             display: flex;
             gap: 10px;
         }
-        /* 一级菜单容器 */
         .menu-wrap {
             position: relative;
         }
-        /* 一级菜单项 */
         .nav-item {
             padding: 12px 24px;
             border-radius: 8px;
@@ -205,7 +229,6 @@
             color: #fff;
             box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
-        /* 二级下拉菜单 */
         .sub-menu {
             position: absolute;
             top: 100%;
@@ -229,7 +252,6 @@
             background: #eff6ff;
             color: #2563eb;
         }
-        /* 悬浮展开下拉 */
         .menu-wrap:hover .sub-menu {
             display: block;
         }
@@ -237,14 +259,12 @@
 </head>
 <body>
 
-<!-- 顶部导航（一二级下拉菜单，全站统一结构） -->
 <div class="navbar">
     <div class="logo">业务管理系统</div>
     <div class="nav-tabs">
         <div class="menu-wrap">
             <div class="nav-item" data-page="index">首页</div>
         </div>
-        <!-- 业务操作（当前页面归属此处，高亮一级菜单） -->
         <div class="menu-wrap">
             <div class="nav-item active">业务操作</div>
             <div class="sub-menu">
@@ -252,7 +272,6 @@
                 <div class="sub-item" data-page="activity">活动页面</div>
             </div>
         </div>
-        <!-- 配置管理 -->
         <div class="menu-wrap">
             <div class="nav-item">配置管理</div>
             <div class="sub-menu">
@@ -444,9 +463,7 @@
     <div class="dialog">
         <h3>新增核销</h3>
         <form id="writeOffForm">
-            <!-- 绑定所属活动ID -->
             <input type="hidden" name="activityId" id="writeOff_activityId">
-
             <div class="form-item">
                 <label>核销时间</label>
                 <input type="date" name="writeOffTime" required>
@@ -485,7 +502,6 @@
 
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="/js/activity.js"></script>
-<!-- 公共导航跳转JS（全站共用） -->
 <script src="/js/index.js"></script>
 </body>
 </html>

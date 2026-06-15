@@ -62,5 +62,15 @@ CREATE TABLE IF NOT EXISTS activity_info (
     applyFee DECIMAL(12,2) COMMENT '申请费用',
     writeOffStatus VARCHAR(100) NULL COMMENT '核销情况',
     activityContent VARCHAR(100) NULL COMMENT '活动内容'
+    );
 
+  CREATE TABLE IF NOT EXISTS write_off_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    activityId BIGINT COMMENT '活动id',
+    writeOffDate DATETIME COMMENT '核销日期',
+    dealerId BIGINT COMMENT '经销商ID',
+    productId BIGINT COMMENT '产品ID',
+    writeOffQuantity BIGINT COMMENT '核销数量',
+    writeOffPrice DECIMAL(12,2) COMMENT '核销单价',
+    writeOffFee DECIMAL(12,2) COMMENT '核销总价'
     );

@@ -180,10 +180,9 @@ function bindEvents() {
     $(document).on("click", ".writeoff-btn", function () {
         let tr = $(this).closest("tr");
         let activityId = tr.find(".data-id").text();
-        let dealerName = tr.find("td:nth-child(5)").text();
+        let dealerName = tr.find("td:nth-child(6)").text();
         let dealerId = tr.data("dealerid");
 
-        // 重置表单 + 回填所属活动、经销商
         $("#writeOffForm")[0].reset();
         selectedProductId = null;
         $("#writeOff_activityId").val(activityId);
@@ -207,7 +206,7 @@ function bindEvents() {
             writeOffPrice: $("#writeOff_price").val(),
             writeOffTotal: $("#writeOff_total").val()
         };
-        $.post("/api/activityWriteOff/add", formData, function () {
+        $.post("/api/writeOff/add", formData, function () {
             alert("核销提交成功！");
             $(".mask").fadeOut();
             loadActivityList();
@@ -216,7 +215,7 @@ function bindEvents() {
         });
     });
 
-    // ========== 展开/收起核销列表（修复按钮状态切换） ==========
+    // ========== 展开/收起核销列表 ==========
     $(document).on("click", ".expand-btn", function () {
         let $btn = $(this);
         let $currTr = $btn.closest("tr");
@@ -224,11 +223,9 @@ function bindEvents() {
         let $nextTr = $currTr.next(".writeoff-wrap");
 
         if ($nextTr.length > 0) {
-            // 存在核销行 → 收起，按钮变回 +
             $nextTr.remove();
             $btn.text("+");
         } else {
-            // 无核销行 → 展开，按钮变为 -
             $btn.text("-");
             loadWriteOffList(activityId, $currTr);
         }
@@ -388,24 +385,25 @@ function loadActivityList() {
 });
 }
 
-// 加载当前活动对应的核销明细
+// 加载当前活动对应的核销明细（模板适配新层级样式）
 function loadWriteOffList(activityId, $tr) {
-    $.get("/api/activityWriteOff/listByActivity", { activityId: activityId }, res => {
+    $.get("/api/writeOff/getWriteOffInfo", { activityId: activityId }, res => {
         let writeHtml = `
         <tr class="writeoff-wrap">
-            <td colspan="9" style="padding:0;">
-                <table style="width:100%;border:none;">
-                    <thead>
-                        <tr style="background:#e2e8f0;">
-                            <th width="15%">核销时间</th>
-                            <th width="20%">经销商名称</th>
-                            <th width="20%">产品名称</th>
-                            <th width="10%">数量</th>
-                            <th width="15%">核销单价</th>
-                            <th width="20%">核销费用</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
+            <td colspan="9">
+                <div class="writeoff-inner-box">
+                    <table class="writeoff-table">
+                        <thead>
+                            <tr>
+                                <th width="15%">核销时间</th>
+                                <th width="20%">经销商名称</th>
+                                <th width="20%">产品名称</th>
+                                <th width="10%">数量</th>
+                                <th width="15%">核销单价</th>
+                                <th width="20%">核销费用</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
     if (res.list && res.list.length > 0) {
         res.list.forEach(item => {
             writeHtml += `
@@ -422,8 +420,9 @@ function loadWriteOffList(activityId, $tr) {
         writeHtml += `<tr class="writeoff-row"><td colspan="6" style="text-align:center;">暂无核销数据</td></tr>`;
     }
     writeHtml += `
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </td>
         </tr>`;
     $tr.after(writeHtml);
