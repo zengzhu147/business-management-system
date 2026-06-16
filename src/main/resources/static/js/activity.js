@@ -423,16 +423,16 @@ function loadWriteOffList(activityId, $tr) {
                             </tr>
                         </thead>
                         <tbody>`;
-    if (res.list && res.list.length > 0) {
-        res.list.forEach(item => {
+    if (res && res.length > 0) {
+        res.forEach(item => {
             writeHtml += `
                 <tr class="writeoff-row">
-                    <td>${item.writeOffTime ? item.writeOffTime.split('T')[0] : ''}</td>
+                    <td>${item.writeOffDate ? item.writeOffDate.split('T')[0] : ''}</td>
                     <td>${item.dealerName}</td>
                     <td>${item.productName}</td>
-                    <td>${item.num}</td>
+                    <td>${item.writeOffQuantity}</td>
                     <td>${item.writeOffPrice}</td>
-                    <td>${item.writeOffTotal}</td>
+                    <td>${item.writeOffFee}</td>
                 </tr>`;
     });
     } else {
