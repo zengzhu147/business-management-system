@@ -37,7 +37,7 @@ function bindEvents() {
     // 关闭所有弹窗 + 隐藏下拉面板
     $(".btn-cancel").click(function () {
         $(".mask").fadeOut();
-        $("#dealerPanel, #activityTypePanel, #writeOff_productPanel").hide();
+        $("#dealerPanel, #activityTypePanel, #writeOff_productPanel, #edit_writeOff_productPanel").hide();
     });
 
     // ========== 1. 活动类型 模糊搜索 ==========
@@ -72,14 +72,13 @@ function bindEvents() {
     }, 200);
     });
 
-    // ========== 3. 核销弹窗 - 产品搜索 ==========
+    // ========== 新增核销产品搜索 ==========
     $(document).on("input", "#writeOff_productSearch", function () {
         selectedProductId = null;
         $("#writeOff_productId").val("");
-        // 清空核销单价
         $("#writeOff_price").val("");
         calcWriteOffTotal();
-        searchProduct();
+        searchProduct("#writeOff_productPanel", "#writeOff_productId", "#writeOff_productSearch", "#writeOff_price");
     });
     $(document).on("blur", "#writeOff_productSearch", function () {
         setTimeout(() => {
@@ -93,15 +92,37 @@ function bindEvents() {
     }, 200);
     });
 
+    // ========== 编辑核销产品搜索 ==========
+    $(document).on("input", "#edit_writeOff_productSearch", function () {
+        selectedProductId = null;
+        $("#edit_writeOff_productId").val("");
+        $("#edit_writeOff_price").val("");
+        calcEditWriteOffTotal();
+        searchProduct("#edit_writeOff_productPanel", "#edit_writeOff_productId", "#edit_writeOff_productSearch", "#edit_writeOff_price");
+    });
+    $(document).on("blur", "#edit_writeOff_productSearch", function () {
+        setTimeout(() => {
+            if (!selectedProductId) {
+            $("#edit_writeOff_productSearch").val("");
+            $("#edit_writeOff_productId").val("");
+            $("#edit_writeOff_price").val("");
+            calcEditWriteOffTotal();
+        }
+        $("#edit_writeOff_productPanel").hide();
+    }, 200);
+    });
+
     // 点击空白关闭所有下拉面板
     $(document).click(function (e) {
         if (!$(e.target).closest("#dealerSearch, #dealerPanel").length) $("#dealerPanel").hide();
         if (!$(e.target).closest("#activityTypeSearch, #activityTypePanel").length) $("#activityTypePanel").hide();
         if (!$(e.target).closest("#writeOff_productSearch, #writeOff_productPanel").length) $("#writeOff_productPanel").hide();
+        if (!$(e.target).closest("#edit_writeOff_productSearch, #edit_writeOff_productPanel").length) $("#edit_writeOff_productPanel").hide();
     });
 
-    // ========== 核销费用自动计算：数量 / 单价变化时计算 ==========
+    // ========== 核销费用自动计算 ==========
     $(document).on("input", "#writeOff_num, #writeOff_price", calcWriteOffTotal);
+    $(document).on("input", "#edit_writeOff_num, #edit_writeOff_price", calcEditWriteOffTotal);
 
     // ========== 新增活动提交 ==========
     $("#activityForm").submit(function (e) {
@@ -200,7 +221,7 @@ function bindEvents() {
         $("#writeOffModal").fadeIn();
     });
 
-    // ========== 核销提交 ==========
+    // ========== 新增核销提交 ==========
     $("#writeOffForm").submit(function (e) {
         e.preventDefault();
         let formData = {
@@ -224,7 +245,68 @@ function bindEvents() {
             error: function () {
                 alert("核销提交失败！");
             }
+        });
     });
+
+    // ========== 打开编辑核销弹窗 ==========
+    $(document).on("click", ".writeoff-edit-btn", function () {
+        let $tr = $(this).closest(".writeoff-row");
+        let writeOffId = $tr.data("writeoffid");
+        let activityId = $tr.data("activityid");
+        $.get("/api/writeOff/getWriteOffInfo", { id: writeOffId }, function (resData) {
+            let data = resData[0];
+            $("#edit_writeOff_id").val(data.id);
+            $("#edit_writeOff_activityId").val(activityId);
+            $("#edit_writeOff_time").val(data.writeOffDate ? data.writeOffDate.split('T')[0] : '');
+            // 经销商只读不可修改
+            $("#edit_writeOff_dealerId").val(data.dealerId);
+            $("#edit_writeOff_dealerName").val(data.dealerName);
+            $("#edit_writeOff_productSearch").val(data.productName);
+            $("#edit_writeOff_productId").val(data.productId);
+            selectedProductId = data.productId;
+            $("#edit_writeOff_num").val(data.writeOffQuantity);
+            $("#edit_writeOff_price").val(parseFloat(data.writeOffPrice).toFixed(2));
+            calcEditWriteOffTotal();
+            $("#editWriteOffModal").fadeIn();
+        });
+    });
+
+    // ========== 编辑核销提交 ==========
+    $("#editWriteOffForm").submit(function (e) {
+        e.preventDefault();
+        let formData = {
+            id: $("#edit_writeOff_id").val(),
+            activityId: $("#edit_writeOff_activityId").val(),
+            dealerId: $("#edit_writeOff_dealerId").val(),
+            productId: $("#edit_writeOff_productId").val(),
+            writeOffDate: $("#edit_writeOff_time").val(),
+            writeOffQuantity: $("#edit_writeOff_num").val(),
+            writeOffPrice: $("#edit_writeOff_price").val(),
+            writeOffFee: $("#edit_writeOff_total").val()
+        };
+        $.ajax({
+            url: "/api/writeOff/update",
+            type: "POST",
+            data: formData,
+            success: function () {
+                alert("核销修改成功！");
+                $(".mask").fadeOut();
+                loadActivityList();
+            },
+            error: function () {
+                alert("核销修改失败！");
+            }
+        });
+    });
+
+    // ========== 删除单条核销 ==========
+    $(document).on("click", ".writeoff-del-btn", function () {
+        let writeOffId = $(this).closest(".writeoff-row").data("writeoffid");
+        if (confirm("确定删除这条核销记录？")) {
+            $.get("/api/writeOff/delete", { id: writeOffId }, function () {
+                loadActivityList();
+            });
+        }
     });
 
     // ========== 展开/收起核销列表 ==========
@@ -269,18 +351,25 @@ function bindEvents() {
     });
 }
 
-// 自动计算核销费用
+// 新增核销总价计算
 function calcWriteOffTotal() {
     let num = Number($("#writeOff_num").val() || 0);
     let price = Number($("#writeOff_price").val() || 0);
     let total = num * price;
     $("#writeOff_total").val(total.toFixed(2));
 }
+// 编辑核销总价计算
+function calcEditWriteOffTotal() {
+    let num = Number($("#edit_writeOff_num").val() || 0);
+    let price = Number($("#edit_writeOff_price").val() || 0);
+    let total = num * price;
+    $("#edit_writeOff_total").val(total.toFixed(2));
+}
 
-// ========== 产品搜索（传入产品价格到点击事件） ==========
-function searchProduct() {
-    let key = $("#writeOff_productSearch").val().toLowerCase().trim();
-    let panel = $("#writeOff_productPanel").empty().show();
+// 通用产品搜索方法
+function searchProduct(panelSel, hidIdSel, inputSel, priceSel) {
+    let key = $(inputSel).val().toLowerCase().trim();
+    let panel = $(panelSel).empty().show();
     if (allProducts.length === 0) {
         panel.append('<div class="select-item">暂无产品</div>');
         return;
@@ -290,23 +379,24 @@ function searchProduct() {
         panel.append('<div class="select-item">未找到匹配</div>');
     } else {
         list.forEach(item => {
-            // 把 item.price 传到 selectProduct 第三个参数
-            panel.append(`<div class="select-item" onclick="selectProduct(${item.id},'${item.productName}',${item.price})">${item.productName}</div>`);
+            panel.append(`<div class="select-item" onclick="selectProductItem('${panelSel}','${hidIdSel}','${inputSel}','${priceSel}',${item.id},'${item.productName}',${item.price})">${item.productName}</div>`);
     });
     }
 }
-
-// 选中产品：自动赋值核销单价并计算总额
-function selectProduct(id, name, price) {
+// 选中产品通用方法
+window.selectProductItem = function(panelSel, hidIdSel, inputSel, priceSel, id, name, price) {
     selectedProductId = id;
-    $("#writeOff_productSearch").val(name);
-    $("#writeOff_productId").val(id);
-    // 自动填充核销单价
-    $("#writeOff_price").val(parseFloat(price).toFixed(2));
-    $("#writeOff_productPanel").hide();
-    // 自动重新计算核销费用
-    calcWriteOffTotal();
-}
+    $(inputSel).val(name);
+    $(hidIdSel).val(id);
+    $(priceSel).val(parseFloat(price).toFixed(2));
+    $(panelSel).hide();
+    // 判断是新增还是编辑核销，执行对应计算
+    if (priceSel === "#writeOff_price") {
+        calcWriteOffTotal();
+    } else {
+        calcEditWriteOffTotal();
+    }
+};
 
 // ========== 活动类型 搜索 ==========
 function searchActivityType() {
@@ -326,7 +416,6 @@ function searchActivityType() {
     });
     }
 }
-// 选中活动类型
 function selectActivityType(id, name) {
     selectedActivityTypeId = id;
     $("#activityTypeSearch").val(name);
@@ -352,7 +441,6 @@ function searchDealer() {
     });
     }
 }
-// 选中经销商
 function selectDealer(id, name) {
     selectedDealerId = id;
     $("#dealerSearch").val(name);
@@ -360,17 +448,14 @@ function selectDealer(id, name) {
     $("#dealerPanel").hide();
 }
 
-// 加载所有经销商
+// 加载基础数据
 function loadDealers() {
     $.get("/api/dealer/all", res => allDealers = res);
 }
-// 加载所有活动类型
 function loadActivityType() {
     $.get("/api/activityConfig/all", res => allActivityType = res);
 }
-// 加载所有产品
 function loadProducts() {
-    // 后端返回产品必须包含 id, productName, price 字段
     $.get("/api/productConfig/all", res => allProducts = res);
 }
 
@@ -404,7 +489,7 @@ function loadActivityList() {
 });
 }
 
-// 加载当前活动对应的核销明细（模板适配新层级样式）
+// 加载核销明细（增加操作列：编辑、删除按钮，绑定id数据）
 function loadWriteOffList(activityId, $tr) {
     $.get("/api/writeOff/getWriteOffInfo", { activityId: activityId }, res => {
         let writeHtml = `
@@ -414,29 +499,34 @@ function loadWriteOffList(activityId, $tr) {
                     <table class="writeoff-table">
                         <thead>
                             <tr>
-                                <th width="15%">核销时间</th>
-                                <th width="20%">经销商名称</th>
-                                <th width="20%">产品名称</th>
+                                <th width="14%">核销时间</th>
+                                <th width="18%">经销商名称</th>
+                                <th width="18%">产品名称</th>
                                 <th width="10%">数量</th>
-                                <th width="15%">核销单价</th>
-                                <th width="20%">核销费用</th>
+                                <th width="14%">核销单价</th>
+                                <th width="16%">核销费用</th>
+                                <th width="10%">操作</th>
                             </tr>
                         </thead>
                         <tbody>`;
     if (res && res.length > 0) {
         res.forEach(item => {
             writeHtml += `
-                <tr class="writeoff-row">
+                <tr class="writeoff-row" data-writeoffid="${item.id}" data-activityid="${activityId}">
                     <td>${item.writeOffDate ? item.writeOffDate.split('T')[0] : ''}</td>
                     <td>${item.dealerName}</td>
                     <td>${item.productName}</td>
                     <td>${item.writeOffQuantity}</td>
                     <td>${item.writeOffPrice}</td>
                     <td>${item.writeOffFee}</td>
+                    <td>
+                        <button class="btn btn-edit writeoff-edit-btn">编辑</button>
+                        <button class="btn btn-del writeoff-del-btn">删除</button>
+                    </td>
                 </tr>`;
     });
     } else {
-        writeHtml += `<tr class="writeoff-row"><td colspan="6" style="text-align:center;">暂无核销数据</td></tr>`;
+        writeHtml += `<tr class="writeoff-row"><td colspan="7" style="text-align:center;">暂无核销数据</td></tr>`;
     }
     writeHtml += `
                         </tbody>

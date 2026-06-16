@@ -107,7 +107,7 @@
         }
         .btn-cancel { background:#9ca3af; }
 
-        #activityForm, #editActivityForm, #writeOffForm {
+        #activityForm, #editActivityForm, #writeOffForm, #editWriteOffForm {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px 22px;
@@ -495,6 +495,50 @@
             <div class="form-btns">
                 <button type="button" class="btn btn-cancel">取消</button>
                 <button type="submit" class="btn btn-add">提交核销</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 编辑核销弹窗【新增】 -->
+<div class="mask" id="editWriteOffModal">
+    <div class="dialog">
+        <h3>编辑核销</h3>
+        <form id="editWriteOffForm">
+            <input type="hidden" name="id" id="edit_writeOff_id">
+            <input type="hidden" name="activityId" id="edit_writeOff_activityId">
+            <div class="form-item">
+                <label>核销时间</label>
+                <input type="date" name="writeOffDate" id="edit_writeOff_time" required>
+            </div>
+            <div class="form-item">
+                <label>经销商名称</label>
+                <!-- readonly 禁止修改经销商 -->
+                <input type="text" id="edit_writeOff_dealerName" readonly>
+                <input type="hidden" name="dealerId" id="edit_writeOff_dealerId">
+            </div>
+            <div class="form-item">
+                <label>产品名称</label>
+                <input type="text" id="edit_writeOff_productSearch" placeholder="搜索产品名称">
+                <div class="select-panel" id="edit_writeOff_productPanel"></div>
+                <input type="hidden" name="productId" id="edit_writeOff_productId">
+            </div>
+            <div class="form-item">
+                <label>数量</label>
+                <input type="number" min="1" name="writeOffQuantity" id="edit_writeOff_num" required>
+            </div>
+            <div class="form-item">
+                <label>核销单价(元)</label>
+                <input step="0.01" type="number" min="0" name="writeOffPrice" id="edit_writeOff_price" required>
+            </div>
+            <div class="form-item">
+                <label>核销费用(元)</label>
+                <input step="0.01" type="number" name="writeOffFee" id="edit_writeOff_total" readonly>
+            </div>
+
+            <div class="form-btns">
+                <button type="button" class="btn btn-cancel">取消</button>
+                <button type="submit" class="btn btn-add">保存修改</button>
             </div>
         </form>
     </div>
