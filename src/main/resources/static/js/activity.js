@@ -469,7 +469,7 @@ function loadActivityList() {
                 <td class="data-id" style="display:none">${item.id}</td>
                 <td><button class="expand-btn">+</button></td>
                 <td>${index + 1}</td>
-                <td>${item.activityTime ? new Date(item.activityTime).toISOString().split('T')[0] : ''}</td>
+                <td>${item.activityTime ? formatLocalDate(item.activityTime):''}</td>
                 <td>${item.activityType}</td>
                 <td>${item.dealerName}</td>
                 <td>${item.activityContent}</td>
@@ -543,10 +543,21 @@ function openDetail(id) {
     $.get("/api/activity/getById", { id }, data => {
         $("#detail_activityType").val(data.activityType);
     $("#detail_dealerName").val(data.dealerName);
-    $("#detail_activityTime").val(data.activityTime ? new Date(data.activityTime).split('T')[0] : '');
+    $("#detail_activityTime").val(data.activityTime ? formatLocalDate(data.activityTime):'');
     $("#detail_applyFee").val(data.applyFee);
     $("#detail_writeOffStatus").val(data.writeOffStatus === 'Y' ? '是' : '否');
     $("#detail_activityContent").val(data.activityContent);
     $("#detailModal").fadeIn();
 });
+}
+
+// 解决UTC日期少一天，输出本地东八区 YYYY-MM-DD
+function formatLocalDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const year = d.getFullYear();
+    // getMonth 从0开始，+1
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }

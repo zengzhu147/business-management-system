@@ -361,7 +361,7 @@ function loadOrderList() {
             <tr>
                 <td class="data-id" style="display:none">${item.id}</td>
                 <td>${index + 1}</td>
-                <td>${item.orderDate ? new Date(item.orderDate).toISOString().split('T')[0] : ''}</td>
+                <td>${item.orderDate ? formatLocalDate(item.orderDate):''}</td>
                 <td>${item.dealerName}</td>
                 <td>${item.productName}</td>
                 <td>${item.quantity}</td>
@@ -386,7 +386,7 @@ function loadOrderList() {
 function openDetail(id) {
     $.get("/api/order/getById", { id }, data => {
         $("#detailDealerName").val(data.dealerName);
-    $("#detailOrderDate").val(data.orderDate ? new Date(data.orderDate).toISOString().split('T')[0] : '');
+    $("#detailOrderDate").val(data.orderDate ? formatLocalDate(data.orderDate):'');
     $("#detailProductName").val(data.productName);
     $("#detailQuantity").val(data.quantity);
     $("#detailPrice").val(data.price);
@@ -395,4 +395,15 @@ function openDetail(id) {
     $("#detailExpectRate").val(data.expectRate);
     $("#detailModal").fadeIn();
 });
+}
+
+// 解决UTC日期少一天，输出本地东八区 YYYY-MM-DD
+function formatLocalDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const year = d.getFullYear();
+    // getMonth 从0开始，+1
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
